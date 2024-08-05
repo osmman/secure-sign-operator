@@ -36,6 +36,11 @@ type CTlogSpec struct {
 	//+optional
 	RootCertificates []SecretKeySelector `json:"rootCertificates,omitempty"`
 
+	// Secret holding log config in text proto format
+	// If it is set then configuration of treeID, privateKeyRef, privateKeyPasswordRef, publicKeyRef and rootCertificates will be ignored
+	//+optional
+	LogConfigRef *LocalObjectReference `json:"logConfigRef,omitempty"`
+
 	//Enable Service monitors for ctlog
 	Monitoring MonitoringConfig `json:"monitoring,omitempty"`
 
@@ -47,6 +52,7 @@ type CTlogSpec struct {
 // CTlogStatus defines the observed state of CTlog component
 type CTlogStatus struct {
 	ServerConfigRef       *LocalObjectReference `json:"serverConfigRef,omitempty"`
+	LogConfigRef          *LocalObjectReference `json:"logConfigRef,omitempty"`
 	PrivateKeyRef         *SecretKeySelector    `json:"privateKeyRef,omitempty"`
 	PrivateKeyPasswordRef *SecretKeySelector    `json:"privateKeyPasswordRef,omitempty"`
 	PublicKeyRef          *SecretKeySelector    `json:"publicKeyRef,omitempty"`

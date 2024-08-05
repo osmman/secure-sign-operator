@@ -1,0 +1,22 @@
+log_configs: {
+  config: {
+    log_id: 12321456
+    prefix: "trusted-artifact-signer-0"
+    roots_pem_file: "/ctfe-keys/fulcio-0-0"
+    roots_pem_file: "/ctfe-keys/fulcio-0-1"
+    private_key: { [type.googleapis.com/keyspb.PEMKeyFile]: { path: "/ctfe-keys/private-0" password: "secure" } }
+    public_key: { [type.googleapis.com/keyspb.PEMKeyFile]: { path: "/ctfe-keys/public-0" } }
+    ext_key_usages: "CodeSigning"
+    not_after_limit: { seconds: 1722862123 nanos: 321521000 }
+    log_backend_name: "trillian" }
+  config: {
+    log_id: 1237987564
+    prefix: "trusted-artifact-signer-1"
+    roots_pem_file: "/ctfe-keys/fulcio-1-0"
+    private_key: { [type.googleapis.com/keyspb.PEMKeyFile]: { path: "/ctfe-keys/private-1" password: "secure" } }
+    public_key: { [type.googleapis.com/keyspb.PEMKeyFile]: { path: "/ctfe-keys/public-1" } }
+    ext_key_usages: "CodeSigning"
+    not_after_start: { seconds: 1722862123 nanos: 321521000 }
+    log_backend_name: "trillian"
+  }
+}

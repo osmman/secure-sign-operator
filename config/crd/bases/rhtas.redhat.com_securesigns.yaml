@@ -59,6 +59,20 @@ spec:
               ctlog:
                 description: CTlogSpec defines the desired state of CTlog component
                 properties:
+                  logConfigRef:
+                    description: |-
+                      Secret holding log config in text proto format
+                      If it is set then configuration of treeID, privateKeyRef, privateKeyPasswordRef, publicKeyRef and rootCertificates will be ignored
+                    properties:
+                      name:
+                        description: |-
+                          Name of the referent.
+                          More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                        type: string
+                    required:
+                    - name
+                    type: object
+                    x-kubernetes-map-type: atomic
                   monitoring:
                     description: Enable Service monitors for ctlog
                     properties:

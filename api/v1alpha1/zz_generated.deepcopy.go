@@ -132,6 +132,11 @@ func (in *CTlogSpec) DeepCopyInto(out *CTlogSpec) {
 		*out = make([]SecretKeySelector, len(*in))
 		copy(*out, *in)
 	}
+	if in.LogConfigRef != nil {
+		in, out := &in.LogConfigRef, &out.LogConfigRef
+		*out = new(LocalObjectReference)
+		**out = **in
+	}
 	out.Monitoring = in.Monitoring
 	in.Trillian.DeepCopyInto(&out.Trillian)
 }
@@ -151,6 +156,11 @@ func (in *CTlogStatus) DeepCopyInto(out *CTlogStatus) {
 	*out = *in
 	if in.ServerConfigRef != nil {
 		in, out := &in.ServerConfigRef, &out.ServerConfigRef
+		*out = new(LocalObjectReference)
+		**out = **in
+	}
+	if in.LogConfigRef != nil {
+		in, out := &in.LogConfigRef, &out.LogConfigRef
 		*out = new(LocalObjectReference)
 		**out = **in
 	}
