@@ -3,6 +3,7 @@ package v1alpha1
 import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/securesign/operator/api"
 	"golang.org/x/net/context"
 	_ "k8s.io/api/apps/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -46,9 +47,9 @@ var _ = Describe("CTlog", func() {
 		Context("is validated", func() {
 			It("public key", func() {
 				invalidObject := generateCTlogObject("public-key-invalid")
-				invalidObject.Spec.PublicKeyRef = &SecretKeySelector{
+				invalidObject.Spec.PublicKeyRef = &api.SecretKeySelector{
 					Key:                  "key",
-					LocalObjectReference: LocalObjectReference{Name: "name"},
+					LocalObjectReference: api.LocalObjectReference{Name: "name"},
 				}
 
 				Expect(apierrors.IsInvalid(k8sClient.Create(context.Background(), invalidObject))).To(BeTrue())
@@ -58,9 +59,9 @@ var _ = Describe("CTlog", func() {
 
 			It("private key password", func() {
 				invalidObject := generateCTlogObject("private-key-password-invalid")
-				invalidObject.Spec.PublicKeyRef = &SecretKeySelector{
+				invalidObject.Spec.PublicKeyRef = &api.SecretKeySelector{
 					Key:                  "key",
-					LocalObjectReference: LocalObjectReference{Name: "name"},
+					LocalObjectReference: api.LocalObjectReference{Name: "name"},
 				}
 
 				Expect(apierrors.IsInvalid(k8sClient.Create(context.Background(), invalidObject))).To(BeTrue())
@@ -106,33 +107,33 @@ var _ = Describe("CTlog", func() {
 						},
 						Spec: CTlogSpec{
 							TreeID: &tree,
-							PublicKeyRef: &SecretKeySelector{
+							PublicKeyRef: &api.SecretKeySelector{
 								Key: "key",
-								LocalObjectReference: LocalObjectReference{
+								LocalObjectReference: api.LocalObjectReference{
 									Name: "name",
 								},
 							},
-							PrivateKeyRef: &SecretKeySelector{
+							PrivateKeyRef: &api.SecretKeySelector{
 								Key: "key",
-								LocalObjectReference: LocalObjectReference{
+								LocalObjectReference: api.LocalObjectReference{
 									Name: "name",
 								},
 							},
-							PrivateKeyPasswordRef: &SecretKeySelector{
+							PrivateKeyPasswordRef: &api.SecretKeySelector{
 								Key: "key",
-								LocalObjectReference: LocalObjectReference{
+								LocalObjectReference: api.LocalObjectReference{
 									Name: "name",
 								},
 							},
-							RootCertificates: []SecretKeySelector{
+							RootCertificates: []api.SecretKeySelector{
 								{
 									Key: "key",
-									LocalObjectReference: LocalObjectReference{
+									LocalObjectReference: api.LocalObjectReference{
 										Name: "name",
 									},
 								},
 							},
-							Trillian: TrillianService{
+							Trillian: api.TrillianService{
 								Address: "trillian-system.default.svc",
 								Port:    &port,
 							},
@@ -178,7 +179,7 @@ func generateCTlogObject(name string) *CTlog {
 			Namespace: "default",
 		},
 		Spec: CTlogSpec{
-			Trillian: TrillianService{
+			Trillian: api.TrillianService{
 				Port: ptr.To(int32(8091)),
 			},
 		},

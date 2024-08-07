@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"github.com/securesign/operator/api"
 	"reflect"
 	"testing"
 
@@ -176,7 +177,7 @@ func TestShardingConfig_Handle(t *testing.T) {
 					},
 				},
 				status: rhtasv1alpha1.RekorStatus{
-					ServerConfigRef: &rhtasv1alpha1.LocalObjectReference{Name: cmName + "old"},
+					ServerConfigRef: &api.LocalObjectReference{Name: cmName + "old"},
 				},
 				objects: []client.Object{
 					kubernetes.CreateConfigmap(
@@ -222,7 +223,7 @@ func TestShardingConfig_Handle(t *testing.T) {
 					},
 				},
 				status: rhtasv1alpha1.RekorStatus{
-					ServerConfigRef: &rhtasv1alpha1.LocalObjectReference{Name: cmName + "old"},
+					ServerConfigRef: &api.LocalObjectReference{Name: cmName + "old"},
 				},
 				objects: []client.Object{
 					kubernetes.CreateConfigmap(
@@ -256,7 +257,7 @@ func TestShardingConfig_Handle(t *testing.T) {
 			env: env{
 				spec: rhtasv1alpha1.RekorSpec{},
 				status: rhtasv1alpha1.RekorStatus{
-					ServerConfigRef: &rhtasv1alpha1.LocalObjectReference{Name: cmName + "old"},
+					ServerConfigRef: &api.LocalObjectReference{Name: cmName + "old"},
 				},
 				objects: []client.Object{
 					kubernetes.CreateConfigmap(
@@ -296,7 +297,7 @@ func TestShardingConfig_Handle(t *testing.T) {
 					},
 				},
 				status: rhtasv1alpha1.RekorStatus{
-					ServerConfigRef: &rhtasv1alpha1.LocalObjectReference{Name: cmName + "old"},
+					ServerConfigRef: &api.LocalObjectReference{Name: cmName + "old"},
 				},
 				objects: []client.Object{
 					kubernetes.CreateConfigmap(
@@ -334,7 +335,7 @@ func TestShardingConfig_Handle(t *testing.T) {
 			env: env{
 				spec: rhtasv1alpha1.RekorSpec{},
 				status: rhtasv1alpha1.RekorStatus{
-					ServerConfigRef: &rhtasv1alpha1.LocalObjectReference{Name: cmName + "deleted"},
+					ServerConfigRef: &api.LocalObjectReference{Name: cmName + "deleted"},
 				},
 			},
 			want: want{

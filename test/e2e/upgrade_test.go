@@ -5,6 +5,7 @@ package e2e
 import (
 	"context"
 	"fmt"
+	"github.com/securesign/operator/api"
 	"os"
 	"strconv"
 	"strings"
@@ -180,7 +181,7 @@ var _ = Describe("Operator upgrade", Ordered, func() {
 			},
 			Spec: tasv1alpha.SecuresignSpec{
 				Rekor: tasv1alpha.RekorSpec{
-					ExternalAccess: tasv1alpha.ExternalAccess{
+					ExternalAccess: api.ExternalAccess{
 						Enabled: true,
 					},
 					RekorSearchUI: tasv1alpha.RekorSearchUI{
@@ -188,7 +189,7 @@ var _ = Describe("Operator upgrade", Ordered, func() {
 					},
 				},
 				Fulcio: tasv1alpha.FulcioSpec{
-					ExternalAccess: tasv1alpha.ExternalAccess{
+					ExternalAccess: api.ExternalAccess{
 						Enabled: true,
 					},
 					Config: tasv1alpha.FulcioConfig{
@@ -208,7 +209,7 @@ var _ = Describe("Operator upgrade", Ordered, func() {
 				},
 				Ctlog: tasv1alpha.CTlogSpec{},
 				Tuf: tasv1alpha.TufSpec{
-					ExternalAccess: tasv1alpha.ExternalAccess{
+					ExternalAccess: api.ExternalAccess{
 						Enabled: true,
 					},
 				},

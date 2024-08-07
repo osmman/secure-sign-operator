@@ -42,7 +42,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	rhtasv1alpha1 "github.com/securesign/operator/api/v1alpha1"
+	rhtas "github.com/securesign/operator/api/v1alpha2"
 )
 
 // CTlogReconciler reconciles a CTlog object
@@ -67,7 +67,7 @@ type CTlogReconciler struct {
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.14.1/pkg/reconcile
 func (r *CTlogReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 
-	var instance rhtasv1alpha1.CTlog
+	var instance rhtas.CTlog
 	rlog := log.FromContext(ctx)
 
 	if err := r.Client.Get(ctx, req.NamespacedName, &instance); err != nil {
@@ -87,14 +87,14 @@ func (r *CTlogReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 	}
 
 	target := instance.DeepCopy()
-	acs := []action.Action[*rhtasv1alpha1.CTlog]{
-		transitions.NewToPendingPhaseAction[*rhtasv1alpha1.CTlog](func(_ *rhtasv1alpha1.CTlog) []string {
+	acs := []action.Action[*rhtas.CTlog]{
+		transitions.NewToPendingPhaseAction[*rhtas.CTlog](func(_ *rhtas.CTlog) []string {
 			return []string{actions.CertCondition}
 		}),
 
 		actions.NewPendingAction(),
 
-		transitions.NewToCreatePhaseAction[*rhtasv1alpha1.CTlog](),
+		transitions.NewToCreatePhaseAction[*rhtas.CTlog](),
 
 		actions.NewHandleFulcioCertAction(),
 		actions.NewHandleKeysAction(),
@@ -106,7 +106,7 @@ func (r *CTlogReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		actions.NewServiceAction(),
 		actions.NewCreateMonitorAction(),
 
-		transitions.NewToInitializePhaseAction[*rhtasv1alpha1.CTlog](),
+		transitions.NewToInitializePhaseAction[*rhtas.CTlog](),
 
 		actions.NewInitializeAction(),
 	}
@@ -155,7 +155,7 @@ func (r *CTlogReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 	return ctrl.NewControllerManagedBy(mgr).
 		WithEventFilter(pause).
-		For(&rhtasv1alpha1.CTlog{}).
+		For(&rhtas.CTlog{}).
 		Owns(&v1.Deployment{}).
 		Owns(&v12.Service{}).
 		WatchesMetadata(partialSecret, handler.EnqueueRequestsFromMapFunc(func(ctx context.Context, object client.Object) []reconcile.Request {
@@ -171,7 +171,7 @@ func (r *CTlogReconciler) SetupWithManager(mgr ctrl.Manager) error {
 				}
 			}
 
-			list := &rhtasv1alpha1.CTlogList{}
+			list := &rhtas.CTlogList{}
 			err := mgr.GetClient().List(ctx, list, client.InNamespace(object.GetNamespace()))
 			if err != nil {
 				return make([]reconcile.Request, 0)

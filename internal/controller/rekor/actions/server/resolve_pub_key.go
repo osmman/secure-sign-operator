@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/securesign/operator/api"
 	"io"
 	"net/http"
 	"strconv"
@@ -80,8 +81,8 @@ func (i resolvePubKeyAction) Handle(ctx context.Context, instance *rhtasv1alpha1
 
 	// Search if exists a secret with rhtas.redhat.com/rekor.pub label
 	for _, secret := range scrl.Items {
-		sks := rhtasv1alpha1.SecretKeySelector{
-			LocalObjectReference: rhtasv1alpha1.LocalObjectReference{Name: secret.Name},
+		sks := api.SecretKeySelector{
+			LocalObjectReference: api.LocalObjectReference{Name: secret.Name},
 			Key:                  secret.Labels[RekorPubLabel],
 		}
 

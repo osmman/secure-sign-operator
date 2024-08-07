@@ -2,9 +2,10 @@ package tas
 
 import (
 	"context"
+	"github.com/securesign/operator/api/v1alpha1"
 
 	. "github.com/onsi/gomega"
-	"github.com/securesign/operator/api/v1alpha1"
+	"github.com/securesign/operator/api/v1alpha2"
 	"github.com/securesign/operator/internal/controller/common/utils/kubernetes"
 	"github.com/securesign/operator/internal/controller/constants"
 	"github.com/securesign/operator/internal/controller/ctlog/actions"
@@ -16,7 +17,7 @@ import (
 
 func VerifyCTLog(ctx context.Context, cli client.Client, namespace string, name string) {
 	Eventually(func(g Gomega) bool {
-		instance := &v1alpha1.CTlog{}
+		instance := &v1alpha2.CTlog{}
 		g.Expect(cli.Get(ctx, types.NamespacedName{
 			Namespace: namespace,
 			Name:      name,

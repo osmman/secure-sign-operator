@@ -65,4 +65,16 @@ resources:
   kind: CTlog
   path: github.com/securesign/secure-sign-operator/api/v1alpha1
   version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: redhat.com
+  group: rhtas
+  kind: CTlog
+  path: github.com/securesign/secure-sign-operator/api/v1alpha2
+  version: v1alpha2
+  webhooks:
+    conversion: true
+    defaulting: true
+    webhookVersion: v1
 version: "3"

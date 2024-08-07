@@ -3,6 +3,7 @@ package ui
 import (
 	"context"
 	"fmt"
+	"github.com/securesign/operator/api"
 
 	rhtasv1alpha1 "github.com/securesign/operator/api/v1alpha1"
 	"github.com/securesign/operator/internal/controller/common/action"
@@ -48,7 +49,7 @@ func (i ingressAction) Handle(ctx context.Context, instance *rhtasv1alpha1.Rekor
 		return i.Failed(fmt.Errorf("could not find service for ingress: %w", err))
 	}
 
-	ingress, err := kubernetes.CreateIngress(ctx, i.Client, *svc, rhtasv1alpha1.ExternalAccess{Host: instance.Spec.ExternalAccess.Host}, actions.SearchUiDeploymentPortName, labels)
+	ingress, err := kubernetes.CreateIngress(ctx, i.Client, *svc, api.ExternalAccess{Host: instance.Spec.ExternalAccess.Host}, actions.SearchUiDeploymentPortName, labels)
 	if err != nil {
 		return i.Failed(fmt.Errorf("could not create ingress object: %w", err))
 	}

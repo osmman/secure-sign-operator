@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
-	rhtasv1alpha1 "github.com/securesign/operator/api/v1alpha1"
+	rhtas "github.com/securesign/operator/api/v1alpha2"
 	"github.com/securesign/operator/internal/controller/common/action"
 	"github.com/securesign/operator/internal/controller/common/utils/kubernetes"
 	"github.com/securesign/operator/internal/controller/constants"
@@ -15,7 +15,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
-func NewCreateMonitorAction() action.Action[*rhtasv1alpha1.CTlog] {
+func NewCreateMonitorAction() action.Action[*rhtas.CTlog] {
 	return &monitoringAction{}
 }
 
@@ -27,12 +27,12 @@ func (i monitoringAction) Name() string {
 	return "create monitoring"
 }
 
-func (i monitoringAction) CanHandle(_ context.Context, instance *rhtasv1alpha1.CTlog) bool {
+func (i monitoringAction) CanHandle(_ context.Context, instance *rhtas.CTlog) bool {
 	c := meta.FindStatusCondition(instance.Status.Conditions, constants.Ready)
 	return (c.Reason == constants.Creating || c.Reason == constants.Ready) && instance.Spec.Monitoring.Enabled
 }
 
-func (i monitoringAction) Handle(ctx context.Context, instance *rhtasv1alpha1.CTlog) *action.Result {
+func (i monitoringAction) Handle(ctx context.Context, instance *rhtas.CTlog) *action.Result {
 	var (
 		err error
 	)

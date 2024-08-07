@@ -9,6 +9,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
+	"github.com/securesign/operator/api"
 
 	"github.com/securesign/operator/api/v1alpha1"
 	"github.com/securesign/operator/internal/controller/common/action"
@@ -144,17 +145,17 @@ func (g generateSigner) Handle(ctx context.Context, instance *v1alpha1.Rekor) *a
 
 	instance.Status.Signer = instance.Spec.Signer
 	if instance.Spec.Signer.KeyRef == nil {
-		instance.Status.Signer.KeyRef = &v1alpha1.SecretKeySelector{
+		instance.Status.Signer.KeyRef = &api.SecretKeySelector{
 			Key: "private",
-			LocalObjectReference: v1alpha1.LocalObjectReference{
+			LocalObjectReference: api.LocalObjectReference{
 				Name: secret.Name,
 			},
 		}
 	}
 	if _, ok := secret.Data["password"]; instance.Spec.Signer.PasswordRef == nil && ok {
-		instance.Status.Signer.PasswordRef = &v1alpha1.SecretKeySelector{
+		instance.Status.Signer.PasswordRef = &api.SecretKeySelector{
 			Key: "password",
-			LocalObjectReference: v1alpha1.LocalObjectReference{
+			LocalObjectReference: api.LocalObjectReference{
 				Name: secret.Name,
 			},
 		}

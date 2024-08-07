@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"github.com/securesign/operator/api"
 	"github.com/securesign/operator/api/v1alpha1"
 	"github.com/securesign/operator/internal/controller/common/utils"
 	"github.com/securesign/operator/internal/controller/constants"
@@ -23,7 +24,7 @@ func secretsVolumeProjection(keys []v1alpha1.TufKey) *core.ProjectedVolumeSource
 	}
 }
 
-func selectorToProjection(secret *v1alpha1.SecretKeySelector, path string) *core.SecretProjection {
+func selectorToProjection(secret *api.SecretKeySelector, path string) *core.SecretProjection {
 	return &core.SecretProjection{
 		LocalObjectReference: core.LocalObjectReference{
 			Name: secret.Name,

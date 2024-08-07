@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"github.com/securesign/operator/api"
 	"reflect"
 
 	rhtasv1alpha1 "github.com/securesign/operator/api/v1alpha1"
@@ -83,7 +84,7 @@ func (i shardingConfig) Handle(ctx context.Context, instance *rhtasv1alpha1.Reko
 		return i.FailedWithStatusUpdate(ctx, err, instance)
 	}
 
-	instance.Status.ServerConfigRef = &rhtasv1alpha1.LocalObjectReference{Name: newConfig.Name}
+	instance.Status.ServerConfigRef = &api.LocalObjectReference{Name: newConfig.Name}
 
 	meta.SetStatusCondition(&instance.Status.Conditions, metav1.Condition{
 		Type:    actions.ServerCondition,

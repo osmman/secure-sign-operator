@@ -5,6 +5,7 @@ package e2e
 import (
 	"context"
 	"encoding/json"
+	"github.com/securesign/operator/api"
 	ctlog "github.com/securesign/operator/internal/controller/ctlog/actions"
 	fulcio "github.com/securesign/operator/internal/controller/fulcio/actions"
 	rekor "github.com/securesign/operator/internal/controller/rekor/actions"
@@ -71,7 +72,7 @@ var _ = Describe("Securesign hot update", Ordered, func() {
 			},
 			Spec: v1alpha1.SecuresignSpec{
 				Rekor: v1alpha1.RekorSpec{
-					ExternalAccess: v1alpha1.ExternalAccess{
+					ExternalAccess: api.ExternalAccess{
 						Enabled: true,
 					},
 					RekorSearchUI: v1alpha1.RekorSearchUI{
@@ -79,7 +80,7 @@ var _ = Describe("Securesign hot update", Ordered, func() {
 					},
 				},
 				Fulcio: v1alpha1.FulcioSpec{
-					ExternalAccess: v1alpha1.ExternalAccess{
+					ExternalAccess: api.ExternalAccess{
 						Enabled: true,
 					},
 					Config: v1alpha1.FulcioConfig{
@@ -99,7 +100,7 @@ var _ = Describe("Securesign hot update", Ordered, func() {
 				},
 				Ctlog: v1alpha1.CTlogSpec{},
 				Tuf: v1alpha1.TufSpec{
-					ExternalAccess: v1alpha1.ExternalAccess{
+					ExternalAccess: api.ExternalAccess{
 						Enabled: true,
 					},
 				},
@@ -141,20 +142,20 @@ var _ = Describe("Securesign hot update", Ordered, func() {
 
 			Expect(cli.Get(ctx, runtimeCli.ObjectKeyFromObject(securesign), securesign)).To(Succeed())
 			securesign.Spec.Fulcio.Certificate = v1alpha1.FulcioCert{
-				PrivateKeyRef: &v1alpha1.SecretKeySelector{
-					LocalObjectReference: v1alpha1.LocalObjectReference{
+				PrivateKeyRef: &api.SecretKeySelector{
+					LocalObjectReference: api.LocalObjectReference{
 						Name: "my-fulcio-secret",
 					},
 					Key: "private",
 				},
-				PrivateKeyPasswordRef: &v1alpha1.SecretKeySelector{
-					LocalObjectReference: v1alpha1.LocalObjectReference{
+				PrivateKeyPasswordRef: &api.SecretKeySelector{
+					LocalObjectReference: api.LocalObjectReference{
 						Name: "my-fulcio-secret",
 					},
 					Key: "password",
 				},
-				CARef: &v1alpha1.SecretKeySelector{
-					LocalObjectReference: v1alpha1.LocalObjectReference{
+				CARef: &api.SecretKeySelector{
+					LocalObjectReference: api.LocalObjectReference{
 						Name: "my-fulcio-secret",
 					},
 					Key: "cert",
@@ -259,8 +260,8 @@ var _ = Describe("Securesign hot update", Ordered, func() {
 			Expect(cli.Get(ctx, runtimeCli.ObjectKeyFromObject(securesign), securesign)).To(Succeed())
 			securesign.Spec.Rekor.Signer = v1alpha1.RekorSigner{
 				KMS: "secret",
-				KeyRef: &v1alpha1.SecretKeySelector{
-					LocalObjectReference: v1alpha1.LocalObjectReference{
+				KeyRef: &api.SecretKeySelector{
+					LocalObjectReference: api.LocalObjectReference{
 						Name: "my-rekor-secret",
 					},
 					Key: "private",
@@ -308,14 +309,14 @@ var _ = Describe("Securesign hot update", Ordered, func() {
 			Expect(ctlogGeneration).Should(BeNumerically(">", 0))
 
 			Expect(cli.Get(ctx, runtimeCli.ObjectKeyFromObject(securesign), securesign)).To(Succeed())
-			securesign.Spec.Ctlog.PrivateKeyRef = &v1alpha1.SecretKeySelector{
-				LocalObjectReference: v1alpha1.LocalObjectReference{
+			securesign.Spec.Ctlog.PrivateKeyRef = &api.SecretKeySelector{
+				LocalObjectReference: api.LocalObjectReference{
 					Name: "my-ctlog-secret",
 				},
 				Key: "private",
 			}
-			securesign.Spec.Ctlog.PublicKeyRef = &v1alpha1.SecretKeySelector{
-				LocalObjectReference: v1alpha1.LocalObjectReference{
+			securesign.Spec.Ctlog.PublicKeyRef = &api.SecretKeySelector{
+				LocalObjectReference: api.LocalObjectReference{
 					Name: "my-ctlog-secret",
 				},
 				Key: "public",

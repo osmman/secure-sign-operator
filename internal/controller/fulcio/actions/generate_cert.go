@@ -6,6 +6,7 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"fmt"
+	"github.com/securesign/operator/api"
 	"maps"
 
 	"github.com/securesign/operator/api/v1alpha1"
@@ -127,27 +128,27 @@ func (g handleCert) Handle(ctx context.Context, instance *v1alpha1.Fulcio) *acti
 
 	instance.Spec.Certificate.DeepCopyInto(instance.Status.Certificate)
 	if instance.Spec.Certificate.PrivateKeyRef == nil {
-		instance.Status.Certificate.PrivateKeyRef = &v1alpha1.SecretKeySelector{
+		instance.Status.Certificate.PrivateKeyRef = &api.SecretKeySelector{
 			Key: "private",
-			LocalObjectReference: v1alpha1.LocalObjectReference{
+			LocalObjectReference: api.LocalObjectReference{
 				Name: newCert.Name,
 			},
 		}
 	}
 
 	if instance.Spec.Certificate.PrivateKeyPasswordRef == nil && len(cert.PrivateKeyPassword) > 0 {
-		instance.Status.Certificate.PrivateKeyPasswordRef = &v1alpha1.SecretKeySelector{
+		instance.Status.Certificate.PrivateKeyPasswordRef = &api.SecretKeySelector{
 			Key: "password",
-			LocalObjectReference: v1alpha1.LocalObjectReference{
+			LocalObjectReference: api.LocalObjectReference{
 				Name: newCert.Name,
 			},
 		}
 	}
 
 	if instance.Spec.Certificate.CARef == nil {
-		instance.Status.Certificate.CARef = &v1alpha1.SecretKeySelector{
+		instance.Status.Certificate.CARef = &api.SecretKeySelector{
 			Key: "cert",
-			LocalObjectReference: v1alpha1.LocalObjectReference{
+			LocalObjectReference: api.LocalObjectReference{
 				Name: newCert.Name,
 			},
 		}

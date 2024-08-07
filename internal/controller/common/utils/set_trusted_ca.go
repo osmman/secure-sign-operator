@@ -2,14 +2,14 @@ package utils
 
 import (
 	"errors"
+	"github.com/securesign/operator/api"
 
-	"github.com/securesign/operator/api/v1alpha1"
 	"github.com/securesign/operator/internal/controller/annotations"
 	corev1 "k8s.io/api/core/v1"
 )
 
 // SetTrustedCA mount config map with trusted CA bundle to all deployment's containers.
-func SetTrustedCA(template *corev1.PodTemplateSpec, lor *v1alpha1.LocalObjectReference) error {
+func SetTrustedCA(template *corev1.PodTemplateSpec, lor *api.LocalObjectReference) error {
 	if template == nil {
 		return errors.New("SetTrustedCA: PodTemplateSpec is not set")
 	}
@@ -59,9 +59,9 @@ func SetTrustedCA(template *corev1.PodTemplateSpec, lor *v1alpha1.LocalObjectRef
 	return nil
 }
 
-func TrustedCAAnnotationToReference(anns map[string]string) *v1alpha1.LocalObjectReference {
+func TrustedCAAnnotationToReference(anns map[string]string) *api.LocalObjectReference {
 	if v, ok := anns[annotations.TrustedCA]; ok {
-		return &v1alpha1.LocalObjectReference{
+		return &api.LocalObjectReference{
 			Name: v,
 		}
 	}

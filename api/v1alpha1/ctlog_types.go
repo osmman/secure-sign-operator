@@ -1,6 +1,7 @@
 package v1alpha1
 
 import (
+	"github.com/securesign/operator/api"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -19,38 +20,38 @@ type CTlogSpec struct {
 
 	// The private key used for signing STHs etc.
 	//+optional
-	PrivateKeyRef *SecretKeySelector `json:"privateKeyRef,omitempty"`
+	PrivateKeyRef *api.SecretKeySelector `json:"privateKeyRef,omitempty"`
 
 	// Password to decrypt private key
 	//+optional
-	PrivateKeyPasswordRef *SecretKeySelector `json:"privateKeyPasswordRef,omitempty"`
+	PrivateKeyPasswordRef *api.SecretKeySelector `json:"privateKeyPasswordRef,omitempty"`
 
 	// The public key matching the private key (if both are present). It is
 	// used only by mirror logs for verifying the source log's signatures, but can
 	// be specified for regular logs as well for the convenience of test tools.
 	//+optional
-	PublicKeyRef *SecretKeySelector `json:"publicKeyRef,omitempty"`
+	PublicKeyRef *api.SecretKeySelector `json:"publicKeyRef,omitempty"`
 
 	// List of secrets containing root certificates that are acceptable to the log.
 	// The certs are served through get-roots endpoint. Optional in mirrors.
 	//+optional
-	RootCertificates []SecretKeySelector `json:"rootCertificates,omitempty"`
+	RootCertificates []api.SecretKeySelector `json:"rootCertificates,omitempty"`
 
 	//Enable Service monitors for ctlog
-	Monitoring MonitoringConfig `json:"monitoring,omitempty"`
+	Monitoring api.MonitoringConfig `json:"monitoring,omitempty"`
 
 	// Trillian service configuration
 	//+kubebuilder:default:={port: 8091}
-	Trillian TrillianService `json:"trillian,omitempty"`
+	Trillian api.TrillianService `json:"trillian,omitempty"`
 }
 
 // CTlogStatus defines the observed state of CTlog component
 type CTlogStatus struct {
-	ServerConfigRef       *LocalObjectReference `json:"serverConfigRef,omitempty"`
-	PrivateKeyRef         *SecretKeySelector    `json:"privateKeyRef,omitempty"`
-	PrivateKeyPasswordRef *SecretKeySelector    `json:"privateKeyPasswordRef,omitempty"`
-	PublicKeyRef          *SecretKeySelector    `json:"publicKeyRef,omitempty"`
-	RootCertificates      []SecretKeySelector   `json:"rootCertificates,omitempty"`
+	ServerConfigRef       *api.LocalObjectReference `json:"serverConfigRef,omitempty"`
+	PrivateKeyRef         *api.SecretKeySelector    `json:"privateKeyRef,omitempty"`
+	PrivateKeyPasswordRef *api.SecretKeySelector    `json:"privateKeyPasswordRef,omitempty"`
+	PublicKeyRef          *api.SecretKeySelector    `json:"publicKeyRef,omitempty"`
+	RootCertificates      []api.SecretKeySelector   `json:"rootCertificates,omitempty"`
 	// The ID of a Trillian tree that stores the log data.
 	TreeID *int64 `json:"treeID,omitempty"`
 	// +listType=map

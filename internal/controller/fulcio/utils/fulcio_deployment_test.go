@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"github.com/securesign/operator/api"
 	"testing"
 
 	"github.com/securesign/operator/internal/controller/annotations"
@@ -48,8 +49,8 @@ func TestPrivateKeyPassword(t *testing.T) {
 	g := NewWithT(t)
 
 	instance := createInstance()
-	instance.Status.Certificate.PrivateKeyPasswordRef = &v1alpha1.SecretKeySelector{
-		LocalObjectReference: v1alpha1.LocalObjectReference{
+	instance.Status.Certificate.PrivateKeyPasswordRef = &api.SecretKeySelector{
+		LocalObjectReference: api.LocalObjectReference{
 			Name: "secret",
 		},
 		Key: "key",
@@ -71,7 +72,7 @@ func TestTrustedCA(t *testing.T) {
 	g := NewWithT(t)
 
 	instance := createInstance()
-	instance.Spec.TrustedCA = &v1alpha1.LocalObjectReference{Name: "trusted"}
+	instance.Spec.TrustedCA = &api.LocalObjectReference{Name: "trusted"}
 	labels := constants.LabelsFor(componentName, deploymentName, instance.Name)
 	deployment, err := CreateDeployment(instance, deploymentName, rbacName, labels)
 	g.Expect(err).ShouldNot(HaveOccurred())
@@ -136,21 +137,21 @@ func createInstance() *v1alpha1.Fulcio {
 			Namespace: "default",
 		},
 		Spec: v1alpha1.FulcioSpec{
-			Ctlog: v1alpha1.CtlogService{
+			Ctlog: api.CtlogService{
 				Address: "http://ctlog.default.svc",
 				Port:    &port,
 			},
 		},
 		Status: v1alpha1.FulcioStatus{
-			ServerConfigRef: &v1alpha1.LocalObjectReference{Name: "config"},
+			ServerConfigRef: &api.LocalObjectReference{Name: "config"},
 			Certificate: &v1alpha1.FulcioCert{
-				PrivateKeyRef: &v1alpha1.SecretKeySelector{
+				PrivateKeyRef: &api.SecretKeySelector{
 					Key:                  "private",
-					LocalObjectReference: v1alpha1.LocalObjectReference{Name: "secret"},
+					LocalObjectReference: api.LocalObjectReference{Name: "secret"},
 				},
-				CARef: &v1alpha1.SecretKeySelector{
+				CARef: &api.SecretKeySelector{
 					Key:                  "cert",
-					LocalObjectReference: v1alpha1.LocalObjectReference{Name: "secret"},
+					LocalObjectReference: api.LocalObjectReference{Name: "secret"},
 				},
 			},
 		},

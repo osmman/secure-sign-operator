@@ -1,6 +1,7 @@
 package v1alpha1
 
 import (
+	"github.com/securesign/operator/api"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -11,21 +12,21 @@ import (
 // FulcioSpec defines the desired state of Fulcio
 type FulcioSpec struct {
 	// Define whether you want to export service or not
-	ExternalAccess ExternalAccess `json:"externalAccess,omitempty"`
+	ExternalAccess api.ExternalAccess `json:"externalAccess,omitempty"`
 	// Ctlog service configuration
 	//+optional
 	//+kubebuilder:default:={port: 80}
-	Ctlog CtlogService `json:"ctlog,omitempty"`
+	Ctlog api.CtlogService `json:"ctlog,omitempty"`
 	// Fulcio Configuration
 	//+required
 	Config FulcioConfig `json:"config"`
 	// Certificate configuration
 	Certificate FulcioCert `json:"certificate"`
 	//Enable Service monitors for fulcio
-	Monitoring MonitoringConfig `json:"monitoring,omitempty"`
+	Monitoring api.MonitoringConfig `json:"monitoring,omitempty"`
 	// ConfigMap with additional bundle of trusted CA
 	//+optional
-	TrustedCA *LocalObjectReference `json:"trustedCA,omitempty"`
+	TrustedCA *api.LocalObjectReference `json:"trustedCA,omitempty"`
 }
 
 // FulcioCert defines fields for system-generated certificate
@@ -34,14 +35,14 @@ type FulcioSpec struct {
 type FulcioCert struct {
 	// Reference to CA private key
 	//+optional
-	PrivateKeyRef *SecretKeySelector `json:"privateKeyRef,omitempty"`
+	PrivateKeyRef *api.SecretKeySelector `json:"privateKeyRef,omitempty"`
 	// Reference to password to encrypt CA private key
 	//+optional
-	PrivateKeyPasswordRef *SecretKeySelector `json:"privateKeyPasswordRef,omitempty"`
+	PrivateKeyPasswordRef *api.SecretKeySelector `json:"privateKeyPasswordRef,omitempty"`
 
 	// Reference to CA certificate
 	//+optional
-	CARef *SecretKeySelector `json:"caRef,omitempty"`
+	CARef *api.SecretKeySelector `json:"caRef,omitempty"`
 
 	//+optional
 	// CommonName specifies the common name for the Fulcio certificate.
@@ -99,9 +100,9 @@ type OIDCIssuer struct {
 
 // FulcioStatus defines the observed state of Fulcio
 type FulcioStatus struct {
-	ServerConfigRef *LocalObjectReference `json:"serverConfigRef,omitempty"`
-	Certificate     *FulcioCert           `json:"certificate,omitempty"`
-	Url             string                `json:"url,omitempty"`
+	ServerConfigRef *api.LocalObjectReference `json:"serverConfigRef,omitempty"`
+	Certificate     *FulcioCert               `json:"certificate,omitempty"`
+	Url             string                    `json:"url,omitempty"`
 	// +listType=map
 	// +listMapKey=type
 	// +patchStrategy=merge

@@ -17,6 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"github.com/securesign/operator/api"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -28,7 +29,7 @@ type TrillianSpec struct {
 	//+kubebuilder:default:={create: true, pvc: {size: "5Gi", retain: true}}
 	Db TrillianDB `json:"database,omitempty"`
 	// Enable Monitoring for Logsigner and Logserver
-	Monitoring MonitoringConfig `json:"monitoring,omitempty"`
+	Monitoring api.MonitoringConfig `json:"monitoring,omitempty"`
 }
 
 type TrillianDB struct {
@@ -43,10 +44,10 @@ type TrillianDB struct {
 	// mysql-password: The password to connect to the MySQL server
 	// mysql-database: The database to connect to
 	//+optional
-	DatabaseSecretRef *LocalObjectReference `json:"databaseSecretRef,omitempty"`
+	DatabaseSecretRef *api.LocalObjectReference `json:"databaseSecretRef,omitempty"`
 	// PVC configuration
 	//+kubebuilder:default:={size: "5Gi", retain: true}
-	Pvc Pvc `json:"pvc,omitempty"`
+	Pvc api.Pvc `json:"pvc,omitempty"`
 }
 
 // TrillianStatus defines the observed state of Trillian

@@ -3,6 +3,7 @@ package v1alpha1
 import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/securesign/operator/api"
 	"golang.org/x/net/context"
 	_ "k8s.io/api/apps/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -45,7 +46,7 @@ var _ = Describe("Trillian", func() {
 
 		It("can be created with database secret", func() {
 			created := generateTrillianObject("trillian-database-secret")
-			created.Spec.Db.DatabaseSecretRef = &LocalObjectReference{
+			created.Spec.Db.DatabaseSecretRef = &api.LocalObjectReference{
 				Name: "database-secret-name",
 			}
 			Expect(k8sClient.Create(context.Background(), created)).To(Succeed())
@@ -147,13 +148,13 @@ var _ = Describe("Trillian", func() {
 						Spec: TrillianSpec{
 							Db: TrillianDB{
 								Create: ptr.To(true),
-								Pvc: Pvc{
+								Pvc: api.Pvc{
 									Retain:       ptr.To(true),
 									Name:         "storage",
 									StorageClass: "storage-class",
 									Size:         &storage,
 								},
-								DatabaseSecretRef: &LocalObjectReference{
+								DatabaseSecretRef: &api.LocalObjectReference{
 									Name: "secret",
 								},
 							},
@@ -178,14 +179,14 @@ var _ = Describe("Trillian", func() {
 						},
 						Spec: TrillianSpec{
 							Db: TrillianDB{
-								DatabaseSecretRef: &LocalObjectReference{
+								DatabaseSecretRef: &api.LocalObjectReference{
 									Name: "secret",
 								},
 							},
 						},
 					}
 
-					expectedTrillianInstance.Spec.Db.DatabaseSecretRef = &LocalObjectReference{
+					expectedTrillianInstance.Spec.Db.DatabaseSecretRef = &api.LocalObjectReference{
 						Name: "secret",
 					}
 
@@ -209,7 +210,7 @@ func generateTrillianObject(name string) *Trillian {
 		Spec: TrillianSpec{
 			Db: TrillianDB{
 				Create: ptr.To(true),
-				Pvc: Pvc{
+				Pvc: api.Pvc{
 					Retain: ptr.To(true),
 					Size:   &storage,
 				},

@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/securesign/operator/api"
 
-	rhtasv1alpha1 "github.com/securesign/operator/api/v1alpha1"
+	rhtas "github.com/securesign/operator/api/v1alpha2"
 	"github.com/securesign/operator/internal/controller/common/action"
 	utils "github.com/securesign/operator/internal/controller/common/utils/kubernetes"
 	"github.com/securesign/operator/internal/controller/constants"
@@ -21,7 +22,7 @@ const (
 	CTLPubLabel = constants.LabelNamespace + "/ctfe.pub"
 )
 
-func NewServerConfigAction() action.Action[*rhtasv1alpha1.CTlog] {
+func NewServerConfigAction() action.Action[*rhtas.CTlog] {
 	return &serverConfig{}
 }
 
@@ -33,12 +34,12 @@ func (i serverConfig) Name() string {
 	return "create server config"
 }
 
-func (i serverConfig) CanHandle(_ context.Context, instance *rhtasv1alpha1.CTlog) bool {
+func (i serverConfig) CanHandle(_ context.Context, instance *rhtas.CTlog) bool {
 	c := meta.FindStatusCondition(instance.Status.Conditions, constants.Ready)
 	return c.Reason == constants.Creating && instance.Status.ServerConfigRef == nil
 }
 
-func (i serverConfig) Handle(ctx context.Context, instance *rhtasv1alpha1.CTlog) *action.Result {
+func (i serverConfig) Handle(ctx context.Context, instance *rhtas.CTlog) *action.Result {
 	var (
 		err error
 	)
@@ -111,7 +112,7 @@ func (i serverConfig) Handle(ctx context.Context, instance *rhtasv1alpha1.CTlog)
 		return i.FailedWithStatusUpdate(ctx, err, instance)
 	}
 
-	instance.Status.ServerConfigRef = &rhtasv1alpha1.LocalObjectReference{Name: newConfig.Name}
+	instance.Status.ServerConfigRef = &api.LocalObjectReference{Name: newConfig.Name}
 
 	i.Recorder.Event(instance, corev1.EventTypeNormal, "CTLogConfigUpdated", "CTLog config updated")
 	meta.SetStatusCondition(&instance.Status.Conditions, metav1.Condition{Type: constants.Ready,
@@ -119,7 +120,7 @@ func (i serverConfig) Handle(ctx context.Context, instance *rhtasv1alpha1.CTlog)
 	return i.StatusUpdate(ctx, instance)
 }
 
-func (i serverConfig) handlePrivateKey(instance *rhtasv1alpha1.CTlog) (*ctlogUtils.PrivateKeyConfig, error) {
+func (i serverConfig) handlePrivateKey(instance *rhtas.CTlog) (*ctlogUtils.PrivateKeyConfig, error) {
 	private, err := utils.GetSecretData(i.Client, instance.Namespace, instance.Status.PrivateKeyRef)
 	if err != nil {
 		return nil, err
@@ -140,7 +141,7 @@ func (i serverConfig) handlePrivateKey(instance *rhtasv1alpha1.CTlog) (*ctlogUti
 	}, nil
 }
 
-func (i serverConfig) handleRootCertificates(instance *rhtasv1alpha1.CTlog) ([]ctlogUtils.RootCertificate, error) {
+func (i serverConfig) handleRootCertificates(instance *rhtas.CTlog) ([]ctlogUtils.RootCertificate, error) {
 	certs := make([]ctlogUtils.RootCertificate, 0)
 
 	for _, selector := range instance.Status.RootCertificates {

@@ -19,6 +19,7 @@ package rekor
 import (
 	"bytes"
 	"context"
+	"github.com/securesign/operator/api"
 	"io"
 	"net/http"
 	"time"
@@ -107,7 +108,7 @@ var _ = Describe("Rekor controller", func() {
 					},
 					Spec: v1alpha1.RekorSpec{
 						TreeID: &ptr,
-						ExternalAccess: v1alpha1.ExternalAccess{
+						ExternalAccess: api.ExternalAccess{
 							Enabled: true,
 							Host:    "rekor.local",
 						},
@@ -139,15 +140,15 @@ var _ = Describe("Rekor controller", func() {
 
 			By("Rekor signer created")
 			found := &v1alpha1.Rekor{}
-			Eventually(func(g Gomega) *v1alpha1.SecretKeySelector {
+			Eventually(func(g Gomega) *api.SecretKeySelector {
 				g.Expect(k8sClient.Get(ctx, typeNamespaceName, found)).To(Succeed())
 				return found.Status.Signer.KeyRef
 			}).Should(Not(BeNil()))
 			Expect(k8sClient.Get(ctx, types.NamespacedName{Name: found.Status.Signer.KeyRef.Name, Namespace: Namespace}, &corev1.Secret{})).Should(Succeed())
 
 			By("Mock http client to return public key on /api/v1/log/publicKey call")
-			pubKeyData, err := kubernetes.GetSecretData(k8sClient, Namespace, &v1alpha1.SecretKeySelector{
-				LocalObjectReference: v1alpha1.LocalObjectReference{
+			pubKeyData, err := kubernetes.GetSecretData(k8sClient, Namespace, &api.SecretKeySelector{
+				LocalObjectReference: api.LocalObjectReference{
 					Name: found.Status.Signer.KeyRef.Name,
 				},
 				Key: "public",

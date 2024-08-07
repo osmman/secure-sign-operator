@@ -3,6 +3,7 @@ package v1alpha1
 import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/securesign/operator/api"
 	"golang.org/x/net/context"
 	_ "k8s.io/api/apps/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -268,10 +269,10 @@ var _ = Describe("Rekor", func() {
 							Namespace: "default",
 						},
 						Spec: RekorSpec{
-							Monitoring: MonitoringConfig{
+							Monitoring: api.MonitoringConfig{
 								Enabled: true,
 							},
-							ExternalAccess: ExternalAccess{
+							ExternalAccess: api.ExternalAccess{
 								Enabled: true,
 								Host:    "hostname",
 							},
@@ -283,7 +284,7 @@ var _ = Describe("Rekor", func() {
 								Schedule: "* */2 * * 0-3",
 							},
 							TreeID: &tree,
-							Pvc: Pvc{
+							Pvc: api.Pvc{
 								Name:         "name",
 								Size:         &storage,
 								StorageClass: "name",
@@ -291,20 +292,20 @@ var _ = Describe("Rekor", func() {
 							},
 							Signer: RekorSigner{
 								KMS: "secret",
-								KeyRef: &SecretKeySelector{
-									LocalObjectReference: LocalObjectReference{
+								KeyRef: &api.SecretKeySelector{
+									LocalObjectReference: api.LocalObjectReference{
 										Name: "secret",
 									},
 									Key: "key",
 								},
-								PasswordRef: &SecretKeySelector{
-									LocalObjectReference: LocalObjectReference{
+								PasswordRef: &api.SecretKeySelector{
+									LocalObjectReference: api.LocalObjectReference{
 										Name: "secret",
 									},
 									Key: "key",
 								},
 							},
-							Trillian: TrillianService{
+							Trillian: api.TrillianService{
 								Address: "trillian-system.default.svc",
 								Port:    &port,
 							},
@@ -334,7 +335,7 @@ var _ = Describe("Rekor", func() {
 							Namespace: "default",
 						},
 						Spec: RekorSpec{
-							Pvc: Pvc{
+							Pvc: api.Pvc{
 								Name: "custom-name",
 							},
 						},
@@ -369,11 +370,11 @@ func generateRekorObject(name string) *Rekor {
 			Signer: RekorSigner{
 				KMS: "secret",
 			},
-			Pvc: Pvc{
+			Pvc: api.Pvc{
 				Retain: ptr.To(true),
 				Size:   &storage,
 			},
-			Trillian: TrillianService{
+			Trillian: api.TrillianService{
 				Port: ptr.To(int32(8091)),
 			},
 		},

@@ -3,6 +3,7 @@ package v1alpha1
 import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/securesign/operator/api"
 	"golang.org/x/net/context"
 	_ "k8s.io/api/apps/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -107,9 +108,9 @@ var _ = Describe("Fulcio", func() {
 		Context("is validated", func() {
 			It("private key", func() {
 				invalidObject := generateFulcioObject("private-key-invalid")
-				invalidObject.Spec.Certificate.CARef = &SecretKeySelector{
+				invalidObject.Spec.Certificate.CARef = &api.SecretKeySelector{
 					Key:                  "key",
-					LocalObjectReference: LocalObjectReference{Name: "name"},
+					LocalObjectReference: api.LocalObjectReference{Name: "name"},
 				}
 
 				Expect(apierrors.IsInvalid(k8sClient.Create(context.Background(), invalidObject))).To(BeTrue())
@@ -172,10 +173,10 @@ var _ = Describe("Fulcio", func() {
 							Namespace: "default",
 						},
 						Spec: FulcioSpec{
-							Monitoring: MonitoringConfig{
+							Monitoring: api.MonitoringConfig{
 								Enabled: true,
 							},
-							ExternalAccess: ExternalAccess{
+							ExternalAccess: api.ExternalAccess{
 								Enabled: true,
 								Host:    "hostname",
 							},
@@ -205,11 +206,11 @@ var _ = Describe("Fulcio", func() {
 								CommonName:            "CommonName",
 								OrganizationName:      "OrganizationName",
 								OrganizationEmail:     "OrganizationEmail",
-								CARef:                 &SecretKeySelector{Key: "key", LocalObjectReference: LocalObjectReference{Name: "name"}},
-								PrivateKeyRef:         &SecretKeySelector{Key: "key", LocalObjectReference: LocalObjectReference{Name: "name"}},
-								PrivateKeyPasswordRef: &SecretKeySelector{Key: "key", LocalObjectReference: LocalObjectReference{Name: "name"}},
+								CARef:                 &api.SecretKeySelector{Key: "key", LocalObjectReference: api.LocalObjectReference{Name: "name"}},
+								PrivateKeyRef:         &api.SecretKeySelector{Key: "key", LocalObjectReference: api.LocalObjectReference{Name: "name"}},
+								PrivateKeyPasswordRef: &api.SecretKeySelector{Key: "key", LocalObjectReference: api.LocalObjectReference{Name: "name"}},
 							},
-							Ctlog: CtlogService{
+							Ctlog: api.CtlogService{
 								Address: "ctlog.default.svc",
 								Port:    &port,
 							},

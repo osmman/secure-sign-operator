@@ -335,6 +335,587 @@ spec:
             type: object
         type: object
     served: true
+    storage: false
+    subresources:
+      status: {}
+  - name: v1alpha2
+    schema:
+      openAPIV3Schema:
+        description: CTlog is the Schema for the ctlogs API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: CTlogSpec defines the desired state of CTlog component
+            properties:
+              log:
+                description: LogConfig describes the configuration options for a log
+                  instance.
+                items:
+                  description: LogConfig describes the configuration options for a
+                    log instance.
+                  properties:
+                    accept_only_ca:
+                      description: |-
+                        accept_only_ca controls whether or not *only* certificates with the CA bit
+                        set will be accepted.
+                      type: boolean
+                    expected_merge_delay_sec:
+                      description: |-
+                        The merge delay that the underlying log implementation is able/targeting to
+                        provide. This option is exposed in CTFE metrics, and can be particularly
+                        useful to catch when the log is behind but has not yet violated the strict
+                        MMD limit.
+                        Log operator should decide what exactly EMD means for them. For example, it
+                        can be a 99-th percentile of merge delays that they observe, and they can
+                        alert on the actual merge delay going above a certain multiple of this EMD.
+                      format: int32
+                      type: integer
+                    ext_key_usages:
+                      description: |-
+                        If set, ext_key_usages will restrict the set of such usages that the
+                        server will accept. By default all are accepted. The values specified
+                        must be ones known to the x509 package.
+                      items:
+                        type: string
+                      type: array
+                    frozen_sth:
+                      description: |-
+                        The STH that this log will serve permanently (if present). Frozen STH must
+                        be signed by this log's private key, and will be verified using the public
+                        key specified in this config.
+                      properties:
+                        sha256_root_hash:
+                          format: byte
+                          type: string
+                        timestamp:
+                          format: int64
+                          type: integer
+                        tree_head_signature:
+                          format: byte
+                          type: string
+                        tree_size:
+                          format: int64
+                          type: integer
+                      type: object
+                    is_mirror:
+                      description: |-
+                        If set, the log is a mirror, i.e. it serves the data of another (source)
+                        log. It doesn't handle write requests (add-chain, etc.), so it's not a
+                        fully fledged RFC-6962 log, but the tree read requests like get-entries and
+                        get-consistency-proof are compatible. A mirror doesn't have the source
+                        log's key and can't sign STHs. Consequently, the log operator must ensure
+                        to channel source log's STHs into CTFE.
+                      type: boolean
+                    is_readonly:
+                      description: |-
+                        If set, the log serves only read endpoints, and rejects writes through the
+                        add-[pre-]chain endpoint.
+                      type: boolean
+                    log_id:
+                      description: |-
+                        The ID of a Trillian tree that stores the log data. The tree type must be
+                        LOG for regular CT logs. For mirror logs it must be either PREORDERED_LOG
+                        or LOG, and can change at runtime. CTFE in mirror mode uses only read API
+                        which is common for both types.
+                      format: int64
+                      type: integer
+                    max_merge_delay_sec:
+                      description: |-
+                        The Maximum Merge Delay (MMD) of this log in seconds. See RFC6962 section 3
+                        for definition of MMD. If zero, the log does not provide an MMD guarantee
+                        (for example, it is a frozen log).
+                      format: int32
+                      type: integer
+                    not_after_limit:
+                      description: |-
+                        not_after_limit defines the end of the range of acceptable NotAfter values,
+                        exclusive.
+                        Leaving this unset implies no upper bound to the range.
+                      format: date-time
+                      type: string
+                    not_after_start:
+                      description: |-
+                        not_after_start defines the start of the range of acceptable NotAfter
+                        values, inclusive.
+                        Leaving this unset implies no lower bound to the range.
+                      format: date-time
+                      type: string
+                    override_handler_prefix:
+                      description: |-
+                        override_handler_prefix if set to a non empty value overrides the global
+                        handler prefix for an individual log. For example this field is set to
+                        "/otherlogs" then a log with prefix "vogon" will make it's get-sth handler
+                        available at "/otherlogs/vogon/ct/v1/get-sth" regardless of what the
+                        global prefix is. Can be set to '/' to make the get-sth handler register
+                        at "/vogon/ct/v1/get-sth".
+                      type: string
+                    prefix:
+                      description: |-
+                        prefix is the name of the log. It will come after the global or
+                        override handler prefix. For example if the handler prefix is "/logs"
+                        and prefix is "vogon" the get-sth handler for this log will be
+                        available at "/logs/vogon/ct/v1/get-sth". The prefix cannot be empty
+                        and must not include "/" path separator characters.
+                      type: string
+                    private_key_password_ref:
+                      description: |-
+                        Password for decrypting the private key.
+                        If empty, indicates that the private key is not encrypted.
+                      properties:
+                        key:
+                          description: The key of the secret to select from. Must
+                            be a valid secret key.
+                          pattern: ^[-._a-zA-Z0-9]+$
+                          type: string
+                        name:
+                          description: |-
+                            Name of the referent.
+                            More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                          type: string
+                      required:
+                      - key
+                      - name
+                      type: object
+                      x-kubernetes-map-type: atomic
+                    private_key_ref:
+                      description: The private key used for signing STHs etc. Not
+                        required for mirrors.
+                      properties:
+                        key:
+                          description: The key of the secret to select from. Must
+                            be a valid secret key.
+                          pattern: ^[-._a-zA-Z0-9]+$
+                          type: string
+                        name:
+                          description: |-
+                            Name of the referent.
+                            More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                          type: string
+                      required:
+                      - key
+                      - name
+                      type: object
+                      x-kubernetes-map-type: atomic
+                    public_key_ref:
+                      description: |-
+                        The public key matching the above private key (if both are present). It is
+                        used only by mirror logs for verifying the source log's signatures, but can
+                        be specified for regular logs as well for the convenience of test tools.
+                      properties:
+                        key:
+                          description: The key of the secret to select from. Must
+                            be a valid secret key.
+                          pattern: ^[-._a-zA-Z0-9]+$
+                          type: string
+                        name:
+                          description: |-
+                            Name of the referent.
+                            More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                          type: string
+                      required:
+                      - key
+                      - name
+                      type: object
+                      x-kubernetes-map-type: atomic
+                    reject_expired:
+                      description: |-
+                        If reject_expired is true then the certificate validity period will be
+                        checked against the current time during the validation of submissions.
+                        This will cause expired certificates to be rejected.
+                      type: boolean
+                    reject_extensions:
+                      description: |-
+                        A list of X.509 extension OIDs, in dotted string form (e.g. "2.3.4.5")
+                        which should cause submissions to be rejected.
+                      items:
+                        type: string
+                      type: array
+                    reject_unexpired:
+                      description: |-
+                        If reject_unexpired is true then CTFE rejects certificates that are either
+                        currently valid or not yet valid.
+                      type: boolean
+                    roots_pem_file:
+                      description: |-
+                        Reference to secrets containing root certificates that are acceptable to the
+                        log. The certs are served through get-roots endpoint. Optional in mirrors.
+                      items:
+                        description: SecretKeySelector selects a key of a Secret.
+                        properties:
+                          key:
+                            description: The key of the secret to select from. Must
+                              be a valid secret key.
+                            pattern: ^[-._a-zA-Z0-9]+$
+                            type: string
+                          name:
+                            description: |-
+                              Name of the referent.
+                              More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                            type: string
+                        required:
+                        - key
+                        - name
+                        type: object
+                        x-kubernetes-map-type: atomic
+                      type: array
+                  required:
+                  - log_id
+                  - prefix
+                  type: object
+                  x-kubernetes-validations:
+                  - message: private_key_ref cannot be empty
+                    rule: (!has(self.public_key_ref) || has(self.private_key_ref))
+                  - message: private_key_ref cannot be empty
+                    rule: (!has(self.private_key_password_ref) || has(self.private_key_ref))
+                type: array
+              monitoring:
+                description: Enable Service monitors for ctlog
+                properties:
+                  enabled:
+                    default: true
+                    description: If true, the Operator will create monitoring resources
+                    type: boolean
+                    x-kubernetes-validations:
+                    - message: Feature cannot be disabled
+                      rule: (self || !oldSelf)
+                required:
+                - enabled
+                type: object
+              trillian:
+                default:
+                  port: 8091
+                description: Trillian service configuration
+                properties:
+                  address:
+                    description: Address to Trillian Log Server End point
+                    type: string
+                  port:
+                    default: 8091
+                    description: Port of Trillian Log Server End point
+                    format: int32
+                    maximum: 65535
+                    minimum: 1
+                    type: integer
+                type: object
+            type: object
+            x-kubernetes-validations:
+            - message: privateKeyRef cannot be empty
+              rule: (!has(self.publicKeyRef) || has(self.privateKeyRef))
+            - message: privateKeyRef cannot be empty
+              rule: (!has(self.privateKeyPasswordRef) || has(self.privateKeyRef))
+          status:
+            description: CTlogStatus defines the observed state of CTlog component
+            properties:
+              conditions:
+                items:
+                  description: "Condition contains details for one aspect of the current
+                    state of this API Resource.\n---\nThis struct is intended for
+                    direct use as an array at the field path .status.conditions.  For
+                    example,\n\n\n\ttype FooStatus struct{\n\t    // Represents the
+                    observations of a foo's current state.\n\t    // Known .status.conditions.type
+                    are: \"Available\", \"Progressing\", and \"Degraded\"\n\t    //
+                    +patchMergeKey=type\n\t    // +patchStrategy=merge\n\t    // +listType=map\n\t
+                    \   // +listMapKey=type\n\t    Conditions []metav1.Condition `json:\"conditions,omitempty\"
+                    patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"`\n\n\n\t
+                    \   // other fields\n\t}"
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: |-
+                        type of condition in CamelCase or in foo.example.com/CamelCase.
+                        ---
+                        Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be
+                        useful (see .node.status.conditions), the ability to deconflict is important.
+                        The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              log:
+                items:
+                  description: LogConfig describes the configuration options for a
+                    log instance.
+                  properties:
+                    accept_only_ca:
+                      description: |-
+                        accept_only_ca controls whether or not *only* certificates with the CA bit
+                        set will be accepted.
+                      type: boolean
+                    expected_merge_delay_sec:
+                      description: |-
+                        The merge delay that the underlying log implementation is able/targeting to
+                        provide. This option is exposed in CTFE metrics, and can be particularly
+                        useful to catch when the log is behind but has not yet violated the strict
+                        MMD limit.
+                        Log operator should decide what exactly EMD means for them. For example, it
+                        can be a 99-th percentile of merge delays that they observe, and they can
+                        alert on the actual merge delay going above a certain multiple of this EMD.
+                      format: int32
+                      type: integer
+                    ext_key_usages:
+                      description: |-
+                        If set, ext_key_usages will restrict the set of such usages that the
+                        server will accept. By default all are accepted. The values specified
+                        must be ones known to the x509 package.
+                      items:
+                        type: string
+                      type: array
+                    frozen_sth:
+                      description: |-
+                        The STH that this log will serve permanently (if present). Frozen STH must
+                        be signed by this log's private key, and will be verified using the public
+                        key specified in this config.
+                      properties:
+                        sha256_root_hash:
+                          format: byte
+                          type: string
+                        timestamp:
+                          format: int64
+                          type: integer
+                        tree_head_signature:
+                          format: byte
+                          type: string
+                        tree_size:
+                          format: int64
+                          type: integer
+                      type: object
+                    is_mirror:
+                      description: |-
+                        If set, the log is a mirror, i.e. it serves the data of another (source)
+                        log. It doesn't handle write requests (add-chain, etc.), so it's not a
+                        fully fledged RFC-6962 log, but the tree read requests like get-entries and
+                        get-consistency-proof are compatible. A mirror doesn't have the source
+                        log's key and can't sign STHs. Consequently, the log operator must ensure
+                        to channel source log's STHs into CTFE.
+                      type: boolean
+                    is_readonly:
+                      description: |-
+                        If set, the log serves only read endpoints, and rejects writes through the
+                        add-[pre-]chain endpoint.
+                      type: boolean
+                    log_id:
+                      description: |-
+                        The ID of a Trillian tree that stores the log data. The tree type must be
+                        LOG for regular CT logs. For mirror logs it must be either PREORDERED_LOG
+                        or LOG, and can change at runtime. CTFE in mirror mode uses only read API
+                        which is common for both types.
+                      format: int64
+                      type: integer
+                    max_merge_delay_sec:
+                      description: |-
+                        The Maximum Merge Delay (MMD) of this log in seconds. See RFC6962 section 3
+                        for definition of MMD. If zero, the log does not provide an MMD guarantee
+                        (for example, it is a frozen log).
+                      format: int32
+                      type: integer
+                    not_after_limit:
+                      description: |-
+                        not_after_limit defines the end of the range of acceptable NotAfter values,
+                        exclusive.
+                        Leaving this unset implies no upper bound to the range.
+                      format: date-time
+                      type: string
+                    not_after_start:
+                      description: |-
+                        not_after_start defines the start of the range of acceptable NotAfter
+                        values, inclusive.
+                        Leaving this unset implies no lower bound to the range.
+                      format: date-time
+                      type: string
+                    override_handler_prefix:
+                      description: |-
+                        override_handler_prefix if set to a non empty value overrides the global
+                        handler prefix for an individual log. For example this field is set to
+                        "/otherlogs" then a log with prefix "vogon" will make it's get-sth handler
+                        available at "/otherlogs/vogon/ct/v1/get-sth" regardless of what the
+                        global prefix is. Can be set to '/' to make the get-sth handler register
+                        at "/vogon/ct/v1/get-sth".
+                      type: string
+                    prefix:
+                      description: |-
+                        prefix is the name of the log. It will come after the global or
+                        override handler prefix. For example if the handler prefix is "/logs"
+                        and prefix is "vogon" the get-sth handler for this log will be
+                        available at "/logs/vogon/ct/v1/get-sth". The prefix cannot be empty
+                        and must not include "/" path separator characters.
+                      type: string
+                    private_key_password_ref:
+                      description: |-
+                        Password for decrypting the private key.
+                        If empty, indicates that the private key is not encrypted.
+                      properties:
+                        key:
+                          description: The key of the secret to select from. Must
+                            be a valid secret key.
+                          pattern: ^[-._a-zA-Z0-9]+$
+                          type: string
+                        name:
+                          description: |-
+                            Name of the referent.
+                            More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                          type: string
+                      required:
+                      - key
+                      - name
+                      type: object
+                      x-kubernetes-map-type: atomic
+                    private_key_ref:
+                      description: The private key used for signing STHs etc. Not
+                        required for mirrors.
+                      properties:
+                        key:
+                          description: The key of the secret to select from. Must
+                            be a valid secret key.
+                          pattern: ^[-._a-zA-Z0-9]+$
+                          type: string
+                        name:
+                          description: |-
+                            Name of the referent.
+                            More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                          type: string
+                      required:
+                      - key
+                      - name
+                      type: object
+                      x-kubernetes-map-type: atomic
+                    public_key_ref:
+                      description: |-
+                        The public key matching the above private key (if both are present). It is
+                        used only by mirror logs for verifying the source log's signatures, but can
+                        be specified for regular logs as well for the convenience of test tools.
+                      properties:
+                        key:
+                          description: The key of the secret to select from. Must
+                            be a valid secret key.
+                          pattern: ^[-._a-zA-Z0-9]+$
+                          type: string
+                        name:
+                          description: |-
+                            Name of the referent.
+                            More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                          type: string
+                      required:
+                      - key
+                      - name
+                      type: object
+                      x-kubernetes-map-type: atomic
+                    reject_expired:
+                      description: |-
+                        If reject_expired is true then the certificate validity period will be
+                        checked against the current time during the validation of submissions.
+                        This will cause expired certificates to be rejected.
+                      type: boolean
+                    reject_extensions:
+                      description: |-
+                        A list of X.509 extension OIDs, in dotted string form (e.g. "2.3.4.5")
+                        which should cause submissions to be rejected.
+                      items:
+                        type: string
+                      type: array
+                    reject_unexpired:
+                      description: |-
+                        If reject_unexpired is true then CTFE rejects certificates that are either
+                        currently valid or not yet valid.
+                      type: boolean
+                    roots_pem_file:
+                      description: |-
+                        Reference to secrets containing root certificates that are acceptable to the
+                        log. The certs are served through get-roots endpoint. Optional in mirrors.
+                      items:
+                        description: SecretKeySelector selects a key of a Secret.
+                        properties:
+                          key:
+                            description: The key of the secret to select from. Must
+                              be a valid secret key.
+                            pattern: ^[-._a-zA-Z0-9]+$
+                            type: string
+                          name:
+                            description: |-
+                              Name of the referent.
+                              More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                            type: string
+                        required:
+                        - key
+                        - name
+                        type: object
+                        x-kubernetes-map-type: atomic
+                      type: array
+                  required:
+                  - log_id
+                  - prefix
+                  type: object
+                  x-kubernetes-validations:
+                  - message: private_key_ref cannot be empty
+                    rule: (!has(self.public_key_ref) || has(self.private_key_ref))
+                  - message: private_key_ref cannot be empty
+                    rule: (!has(self.private_key_password_ref) || has(self.private_key_ref))
+                type: array
+            type: object
+        type: object
+    served: true
     storage: true
     subresources:
       status: {}

@@ -3,6 +3,7 @@ package v1alpha1
 import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/securesign/operator/api"
 	"golang.org/x/net/context"
 	_ "k8s.io/api/apps/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -132,15 +133,15 @@ var _ = Describe("TUF", func() {
 						},
 						Spec: TufSpec{
 							Port: 8181,
-							ExternalAccess: ExternalAccess{
+							ExternalAccess: api.ExternalAccess{
 								Enabled: true,
 								Host:    "hostname",
 							},
 							Keys: []TufKey{
 								{
 									Name: "rekor.pub",
-									SecretRef: &SecretKeySelector{
-										LocalObjectReference: LocalObjectReference{
+									SecretRef: &api.SecretKeySelector{
+										LocalObjectReference: api.LocalObjectReference{
 											Name: "object",
 										},
 										Key: "key",
@@ -167,7 +168,7 @@ var _ = Describe("TUF", func() {
 							Namespace: "default",
 						},
 						Spec: TufSpec{
-							ExternalAccess: ExternalAccess{
+							ExternalAccess: api.ExternalAccess{
 								Enabled: true,
 							},
 						},
@@ -193,7 +194,7 @@ func generateTufObject(name string) *Tuf {
 		},
 		Spec: TufSpec{
 			Port: 80,
-			ExternalAccess: ExternalAccess{
+			ExternalAccess: api.ExternalAccess{
 				Enabled: false,
 			},
 			Keys: []TufKey{

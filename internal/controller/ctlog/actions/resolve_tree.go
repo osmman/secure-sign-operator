@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/google/trillian"
-	rhtasv1alpha1 "github.com/securesign/operator/api/v1alpha1"
+	rhtas "github.com/securesign/operator/api/v1alpha2"
 	"github.com/securesign/operator/internal/controller/common"
 	"github.com/securesign/operator/internal/controller/common/action"
 	"github.com/securesign/operator/internal/controller/constants"
@@ -19,7 +19,7 @@ import (
 
 type createTree func(ctx context.Context, displayName string, trillianURL string, deadline int64) (*trillian.Tree, error)
 
-func NewResolveTreeAction(opts ...func(*resolveTreeAction)) action.Action[*rhtasv1alpha1.CTlog] {
+func NewResolveTreeAction(opts ...func(*resolveTreeAction)) action.Action[*rhtas.CTlog] {
 	a := &resolveTreeAction{
 		createTree: common.CreateTrillianTree,
 	}
@@ -39,7 +39,7 @@ func (i resolveTreeAction) Name() string {
 	return "resolve treeID"
 }
 
-func (i resolveTreeAction) CanHandle(_ context.Context, instance *rhtasv1alpha1.CTlog) bool {
+func (i resolveTreeAction) CanHandle(_ context.Context, instance *rhtas.CTlog) bool {
 	c := meta.FindStatusCondition(instance.Status.Conditions, constants.Ready)
 	switch {
 	case c == nil:
@@ -55,7 +55,7 @@ func (i resolveTreeAction) CanHandle(_ context.Context, instance *rhtasv1alpha1.
 	}
 }
 
-func (i resolveTreeAction) Handle(ctx context.Context, instance *rhtasv1alpha1.CTlog) *action.Result {
+func (i resolveTreeAction) Handle(ctx context.Context, instance *rhtas.CTlog) *action.Result {
 	if instance.Spec.TreeID != nil && *instance.Spec.TreeID != int64(0) {
 		instance.Status.TreeID = instance.Spec.TreeID
 		return i.StatusUpdate(ctx, instance)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/securesign/operator/api"
 	"reflect"
 
 	rhtasv1alpha1 "github.com/securesign/operator/api/v1alpha1"
@@ -116,7 +117,7 @@ func (i resolveKeysAction) handleKey(ctx context.Context, instance *rhtasv1alpha
 	}
 }
 
-func (i resolveKeysAction) discoverSecret(ctx context.Context, namespace string, key *rhtasv1alpha1.TufKey) (*rhtasv1alpha1.SecretKeySelector, error) {
+func (i resolveKeysAction) discoverSecret(ctx context.Context, namespace string, key *rhtasv1alpha1.TufKey) (*api.SecretKeySelector, error) {
 	labelName := constants.LabelNamespace + "/" + key.Name
 	s, err := k8sutils.FindSecret(ctx, i.Client, namespace, labelName)
 	if err != nil {
@@ -128,9 +129,9 @@ func (i resolveKeysAction) discoverSecret(ctx context.Context, namespace string,
 			err = fmt.Errorf("label %s is empty", labelName)
 			return nil, err
 		}
-		return &rhtasv1alpha1.SecretKeySelector{
+		return &api.SecretKeySelector{
 			Key: keySelector,
-			LocalObjectReference: rhtasv1alpha1.LocalObjectReference{
+			LocalObjectReference: api.LocalObjectReference{
 				Name: s.Name,
 			},
 		}, nil

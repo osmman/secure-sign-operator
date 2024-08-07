@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/securesign/operator/api"
 
 	rhtasv1alpha1 "github.com/securesign/operator/api/v1alpha1"
 	"github.com/securesign/operator/internal/controller/common/action"
@@ -119,7 +120,7 @@ func (i serverConfig) Handle(ctx context.Context, instance *rhtasv1alpha1.Fulcio
 		return i.FailedWithStatusUpdate(ctx, err, instance)
 	}
 
-	instance.Status.ServerConfigRef = &rhtasv1alpha1.LocalObjectReference{Name: expected.Name}
+	instance.Status.ServerConfigRef = &api.LocalObjectReference{Name: expected.Name}
 
 	i.Recorder.Event(instance, v1.EventTypeNormal, "FulcioConfigUpdated", "Fulcio config updated")
 	meta.SetStatusCondition(&instance.Status.Conditions, metav1.Condition{Type: constants.Ready,

@@ -2,12 +2,13 @@ package actions
 
 import (
 	"context"
+	"github.com/securesign/operator/api"
 	"testing"
 
 	testAction "github.com/securesign/operator/internal/testing/action"
 
 	. "github.com/onsi/gomega"
-	"github.com/securesign/operator/api/v1alpha1"
+	"github.com/securesign/operator/api/v1alpha2"
 	"github.com/securesign/operator/internal/controller/common/action"
 	"github.com/securesign/operator/internal/controller/common/utils/kubernetes"
 	"github.com/securesign/operator/internal/controller/constants"
@@ -21,13 +22,13 @@ import (
 func Test_HandleFulcioCert_Autodiscover(t *testing.T) {
 	g := NewWithT(t)
 
-	instance := &v1alpha1.CTlog{
+	instance := &v1alpha2.CTlog{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "auto",
 			Namespace: "default",
 		},
-		Spec: v1alpha1.CTlogSpec{},
-		Status: v1alpha1.CTlogStatus{
+		Spec: v1alpha2.CTlogSpec{},
+		Status: v1alpha2.CTlogStatus{
 			Conditions: []metav1.Condition{
 				{
 					Type:   constants.Ready,
@@ -44,7 +45,7 @@ func Test_HandleFulcioCert_Autodiscover(t *testing.T) {
 		instance,
 	).Build()
 
-	i := &v1alpha1.CTlog{}
+	i := &v1alpha2.CTlog{}
 	if err := c.Get(context.TODO(), types.NamespacedName{Name: instance.GetName(), Namespace: instance.GetNamespace()}, i); err != nil {
 		t.Error(err)
 	}
@@ -64,13 +65,13 @@ func Test_HandleFulcioCert_Autodiscover(t *testing.T) {
 func Test_HandleFulcioCert_Empty(t *testing.T) {
 	g := NewWithT(t)
 
-	instance := &v1alpha1.CTlog{
+	instance := &v1alpha2.CTlog{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "empty",
 			Namespace: "default",
 		},
-		Spec: v1alpha1.CTlogSpec{},
-		Status: v1alpha1.CTlogStatus{
+		Spec: v1alpha2.CTlogSpec{},
+		Status: v1alpha2.CTlogStatus{
 			Conditions: []metav1.Condition{
 				{
 					Type:   constants.Ready,
@@ -85,7 +86,7 @@ func Test_HandleFulcioCert_Empty(t *testing.T) {
 		instance,
 	).Build()
 
-	i := &v1alpha1.CTlog{}
+	i := &v1alpha2.CTlog{}
 	if err := c.Get(context.TODO(), types.NamespacedName{Name: instance.GetName(), Namespace: instance.GetNamespace()}, i); err != nil {
 		t.Error(err)
 	}
@@ -101,24 +102,24 @@ func Test_HandleFulcioCert_Empty(t *testing.T) {
 func Test_HandleFulcioCert_Configured(t *testing.T) {
 	g := NewWithT(t)
 
-	instance := &v1alpha1.CTlog{
+	instance := &v1alpha2.CTlog{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "configured",
 			Namespace: "default",
 		},
-		Spec: v1alpha1.CTlogSpec{
-			RootCertificates: []v1alpha1.SecretKeySelector{
+		Spec: v1alpha2.CTlogSpec{
+			RootCertificates: []api.SecretKeySelector{
 				{
 					Key:                  "key",
-					LocalObjectReference: v1alpha1.LocalObjectReference{Name: "secret"},
+					LocalObjectReference: api.LocalObjectReference{Name: "secret"},
 				},
 				{
 					Key:                  "key",
-					LocalObjectReference: v1alpha1.LocalObjectReference{Name: "secret-2"},
+					LocalObjectReference: api.LocalObjectReference{Name: "secret-2"},
 				},
 			},
 		},
-		Status: v1alpha1.CTlogStatus{
+		Status: v1alpha2.CTlogStatus{
 			Conditions: []metav1.Condition{
 				{
 					Type:   constants.Ready,
@@ -135,7 +136,7 @@ func Test_HandleFulcioCert_Configured(t *testing.T) {
 		instance,
 	).Build()
 
-	i := &v1alpha1.CTlog{}
+	i := &v1alpha2.CTlog{}
 	if err := c.Get(context.TODO(), types.NamespacedName{Name: instance.GetName(), Namespace: instance.GetNamespace()}, i); err != nil {
 		t.Error(err)
 	}
@@ -156,20 +157,20 @@ func Test_HandleFulcioCert_Configured(t *testing.T) {
 func Test_HandleFulcioCert_Configured_Priority(t *testing.T) {
 	g := NewWithT(t)
 
-	instance := &v1alpha1.CTlog{
+	instance := &v1alpha2.CTlog{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "configured-priority",
 			Namespace: "default",
 		},
-		Spec: v1alpha1.CTlogSpec{
-			RootCertificates: []v1alpha1.SecretKeySelector{
+		Spec: v1alpha2.CTlogSpec{
+			RootCertificates: []api.SecretKeySelector{
 				{
 					Key:                  "key",
-					LocalObjectReference: v1alpha1.LocalObjectReference{Name: "my-secret"},
+					LocalObjectReference: api.LocalObjectReference{Name: "my-secret"},
 				},
 			},
 		},
-		Status: v1alpha1.CTlogStatus{
+		Status: v1alpha2.CTlogStatus{
 			Conditions: []metav1.Condition{
 				{
 					Type:   constants.Ready,
@@ -188,7 +189,7 @@ func Test_HandleFulcioCert_Configured_Priority(t *testing.T) {
 		instance,
 	).Build()
 
-	i := &v1alpha1.CTlog{}
+	i := &v1alpha2.CTlog{}
 	if err := c.Get(context.TODO(), types.NamespacedName{Name: instance.GetName(), Namespace: instance.GetNamespace()}, i); err != nil {
 		t.Error(err)
 	}
@@ -207,21 +208,21 @@ func Test_HandleFulcioCert_Configured_Priority(t *testing.T) {
 func Test_HandleFulcioCert_Delete_ServerConfig(t *testing.T) {
 	g := NewWithT(t)
 
-	instance := &v1alpha1.CTlog{
+	instance := &v1alpha2.CTlog{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "delete-config",
 			Namespace: "default",
 		},
-		Spec: v1alpha1.CTlogSpec{
-			RootCertificates: []v1alpha1.SecretKeySelector{
+		Spec: v1alpha2.CTlogSpec{
+			RootCertificates: []api.SecretKeySelector{
 				{
 					Key:                  "key",
-					LocalObjectReference: v1alpha1.LocalObjectReference{Name: "secret"},
+					LocalObjectReference: api.LocalObjectReference{Name: "secret"},
 				},
 			},
 		},
-		Status: v1alpha1.CTlogStatus{
-			ServerConfigRef: &v1alpha1.LocalObjectReference{Name: "ctlog-config"},
+		Status: v1alpha2.CTlogStatus{
+			ServerConfigRef: &api.LocalObjectReference{Name: "ctlog-config"},
 			Conditions: []metav1.Condition{
 				{
 					Type:   constants.Ready,
@@ -237,7 +238,7 @@ func Test_HandleFulcioCert_Delete_ServerConfig(t *testing.T) {
 		instance,
 	).Build()
 
-	i := &v1alpha1.CTlog{}
+	i := &v1alpha2.CTlog{}
 	if err := c.Get(context.TODO(), types.NamespacedName{Name: instance.GetName(), Namespace: instance.GetNamespace()}, i); err != nil {
 		t.Error(err)
 	}

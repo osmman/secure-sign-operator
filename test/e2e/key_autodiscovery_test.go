@@ -4,6 +4,7 @@ package e2e
 
 import (
 	"context"
+	"github.com/securesign/operator/api"
 	"os"
 	"time"
 
@@ -52,13 +53,13 @@ var _ = Describe("Securesign key autodiscovery test", Ordered, func() {
 			},
 			Spec: v1alpha1.SecuresignSpec{
 				Rekor: v1alpha1.RekorSpec{
-					ExternalAccess: v1alpha1.ExternalAccess{
+					ExternalAccess: api.ExternalAccess{
 						Enabled: true,
 					},
 					Signer: v1alpha1.RekorSigner{
 						KMS: "secret",
-						KeyRef: &v1alpha1.SecretKeySelector{
-							LocalObjectReference: v1alpha1.LocalObjectReference{
+						KeyRef: &api.SecretKeySelector{
+							LocalObjectReference: api.LocalObjectReference{
 								Name: "my-rekor-secret",
 							},
 							Key: "private",
@@ -66,7 +67,7 @@ var _ = Describe("Securesign key autodiscovery test", Ordered, func() {
 					},
 				},
 				Fulcio: v1alpha1.FulcioSpec{
-					ExternalAccess: v1alpha1.ExternalAccess{
+					ExternalAccess: api.ExternalAccess{
 						Enabled: true,
 					},
 					Config: v1alpha1.FulcioConfig{
@@ -79,20 +80,20 @@ var _ = Describe("Securesign key autodiscovery test", Ordered, func() {
 							},
 						}},
 					Certificate: v1alpha1.FulcioCert{
-						PrivateKeyRef: &v1alpha1.SecretKeySelector{
-							LocalObjectReference: v1alpha1.LocalObjectReference{
+						PrivateKeyRef: &api.SecretKeySelector{
+							LocalObjectReference: api.LocalObjectReference{
 								Name: "my-fulcio-secret",
 							},
 							Key: "private",
 						},
-						PrivateKeyPasswordRef: &v1alpha1.SecretKeySelector{
-							LocalObjectReference: v1alpha1.LocalObjectReference{
+						PrivateKeyPasswordRef: &api.SecretKeySelector{
+							LocalObjectReference: api.LocalObjectReference{
 								Name: "my-fulcio-secret",
 							},
 							Key: "password",
 						},
-						CARef: &v1alpha1.SecretKeySelector{
-							LocalObjectReference: v1alpha1.LocalObjectReference{
+						CARef: &api.SecretKeySelector{
+							LocalObjectReference: api.LocalObjectReference{
 								Name: "my-fulcio-secret",
 							},
 							Key: "cert",
@@ -100,15 +101,15 @@ var _ = Describe("Securesign key autodiscovery test", Ordered, func() {
 					},
 				},
 				Ctlog: v1alpha1.CTlogSpec{
-					PrivateKeyRef: &v1alpha1.SecretKeySelector{
-						LocalObjectReference: v1alpha1.LocalObjectReference{
+					PrivateKeyRef: &api.SecretKeySelector{
+						LocalObjectReference: api.LocalObjectReference{
 							Name: "my-ctlog-secret",
 						},
 						Key: "private",
 					},
-					RootCertificates: []v1alpha1.SecretKeySelector{
+					RootCertificates: []api.SecretKeySelector{
 						{
-							LocalObjectReference: v1alpha1.LocalObjectReference{
+							LocalObjectReference: api.LocalObjectReference{
 								Name: "my-fulcio-secret",
 							},
 							Key: "cert",
@@ -116,7 +117,7 @@ var _ = Describe("Securesign key autodiscovery test", Ordered, func() {
 					},
 				},
 				Tuf: v1alpha1.TufSpec{
-					ExternalAccess: v1alpha1.ExternalAccess{
+					ExternalAccess: api.ExternalAccess{
 						Enabled: true,
 					},
 				},

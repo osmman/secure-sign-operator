@@ -1,6 +1,7 @@
 package v1alpha1
 
 import (
+	"github.com/securesign/operator/api"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -11,7 +12,7 @@ import (
 // TufSpec defines the desired state of Tuf
 type TufSpec struct {
 	// Define whether you want to export service or not
-	ExternalAccess ExternalAccess `json:"externalAccess,omitempty"`
+	ExternalAccess api.ExternalAccess `json:"externalAccess,omitempty"`
 	//+kubebuilder:default:=80
 	//+kubebuilder:validation:Minimum:=1
 	//+kubebuilder:validation:Maximum:=65535
@@ -31,7 +32,7 @@ type TufKey struct {
 	// If it is unset, the operator will try to autoconfigure secret reference, by searching secrets in namespace which
 	// contain `rhtas.redhat.com/$name` label.
 	//+optional
-	SecretRef *SecretKeySelector `json:"secretRef,omitempty"`
+	SecretRef *api.SecretKeySelector `json:"secretRef,omitempty"`
 }
 
 // TufStatus defines the observed state of Tuf

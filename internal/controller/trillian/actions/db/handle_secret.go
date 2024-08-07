@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
+	"github.com/securesign/operator/api"
 	"strconv"
 
 	"github.com/securesign/operator/internal/controller/common/utils"
@@ -80,7 +81,7 @@ func (i handleSecretAction) Handle(ctx context.Context, instance *rhtasv1alpha1.
 		return i.FailedWithStatusUpdate(ctx, fmt.Errorf("could not create DB secret: %w", err), instance)
 	}
 
-	instance.Status.Db.DatabaseSecretRef = &rhtasv1alpha1.LocalObjectReference{
+	instance.Status.Db.DatabaseSecretRef = &api.LocalObjectReference{
 		Name: dbSecret.Name,
 	}
 	return i.StatusUpdate(ctx, instance)

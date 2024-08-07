@@ -18,6 +18,7 @@ package fulcio
 
 import (
 	"context"
+	"github.com/securesign/operator/api"
 	"time"
 
 	"github.com/securesign/operator/api/v1alpha1"
@@ -91,7 +92,7 @@ var _ = Describe("Fulcio controller", func() {
 						Namespace: Namespace,
 					},
 					Spec: v1alpha1.FulcioSpec{
-						ExternalAccess: v1alpha1.ExternalAccess{
+						ExternalAccess: api.ExternalAccess{
 							Host:    "fulcio.localhost",
 							Enabled: true,
 						},
@@ -109,15 +110,15 @@ var _ = Describe("Fulcio controller", func() {
 							OrganizationName:  "MyOrg",
 							OrganizationEmail: "my@email.com",
 							CommonName:        "local",
-							PrivateKeyPasswordRef: &v1alpha1.SecretKeySelector{
-								LocalObjectReference: v1alpha1.LocalObjectReference{
+							PrivateKeyPasswordRef: &api.SecretKeySelector{
+								LocalObjectReference: api.LocalObjectReference{
 									Name: "password-secret",
 								},
 								Key: "password",
 							},
 						},
-						Monitoring: v1alpha1.MonitoringConfig{Enabled: false},
-						TrustedCA: &v1alpha1.LocalObjectReference{
+						Monitoring: api.MonitoringConfig{Enabled: false},
+						TrustedCA: &api.LocalObjectReference{
 							Name: "trusted-ca-bundle",
 						},
 					},

@@ -10,6 +10,7 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
+	"github.com/securesign/operator/api"
 	"math/big"
 	"os"
 	"time"
@@ -60,13 +61,13 @@ var _ = Describe("Securesign install with provided certs", Ordered, func() {
 			},
 			Spec: v1alpha1.SecuresignSpec{
 				Rekor: v1alpha1.RekorSpec{
-					ExternalAccess: v1alpha1.ExternalAccess{
+					ExternalAccess: api.ExternalAccess{
 						Enabled: true,
 					},
 					Signer: v1alpha1.RekorSigner{
 						KMS: "secret",
-						KeyRef: &v1alpha1.SecretKeySelector{
-							LocalObjectReference: v1alpha1.LocalObjectReference{
+						KeyRef: &api.SecretKeySelector{
+							LocalObjectReference: api.LocalObjectReference{
 								Name: "my-rekor-secret",
 							},
 							Key: "private",
@@ -74,7 +75,7 @@ var _ = Describe("Securesign install with provided certs", Ordered, func() {
 					},
 				},
 				Fulcio: v1alpha1.FulcioSpec{
-					ExternalAccess: v1alpha1.ExternalAccess{
+					ExternalAccess: api.ExternalAccess{
 						Enabled: true,
 					},
 					Config: v1alpha1.FulcioConfig{
@@ -87,20 +88,20 @@ var _ = Describe("Securesign install with provided certs", Ordered, func() {
 							},
 						}},
 					Certificate: v1alpha1.FulcioCert{
-						PrivateKeyRef: &v1alpha1.SecretKeySelector{
-							LocalObjectReference: v1alpha1.LocalObjectReference{
+						PrivateKeyRef: &api.SecretKeySelector{
+							LocalObjectReference: api.LocalObjectReference{
 								Name: "my-fulcio-secret",
 							},
 							Key: "private",
 						},
-						PrivateKeyPasswordRef: &v1alpha1.SecretKeySelector{
-							LocalObjectReference: v1alpha1.LocalObjectReference{
+						PrivateKeyPasswordRef: &api.SecretKeySelector{
+							LocalObjectReference: api.LocalObjectReference{
 								Name: "my-fulcio-secret",
 							},
 							Key: "password",
 						},
-						CARef: &v1alpha1.SecretKeySelector{
-							LocalObjectReference: v1alpha1.LocalObjectReference{
+						CARef: &api.SecretKeySelector{
+							LocalObjectReference: api.LocalObjectReference{
 								Name: "my-fulcio-secret",
 							},
 							Key: "cert",
@@ -108,15 +109,15 @@ var _ = Describe("Securesign install with provided certs", Ordered, func() {
 					},
 				},
 				Ctlog: v1alpha1.CTlogSpec{
-					PrivateKeyRef: &v1alpha1.SecretKeySelector{
-						LocalObjectReference: v1alpha1.LocalObjectReference{
+					PrivateKeyRef: &api.SecretKeySelector{
+						LocalObjectReference: api.LocalObjectReference{
 							Name: "my-ctlog-secret",
 						},
 						Key: "private",
 					},
-					RootCertificates: []v1alpha1.SecretKeySelector{
+					RootCertificates: []api.SecretKeySelector{
 						{
-							LocalObjectReference: v1alpha1.LocalObjectReference{
+							LocalObjectReference: api.LocalObjectReference{
 								Name: "my-fulcio-secret",
 							},
 							Key: "cert",
@@ -124,14 +125,14 @@ var _ = Describe("Securesign install with provided certs", Ordered, func() {
 					},
 				},
 				Tuf: v1alpha1.TufSpec{
-					ExternalAccess: v1alpha1.ExternalAccess{
+					ExternalAccess: api.ExternalAccess{
 						Enabled: true,
 					},
 					Keys: []v1alpha1.TufKey{
 						{
 							Name: "fulcio_v1.crt.pem",
-							SecretRef: &v1alpha1.SecretKeySelector{
-								LocalObjectReference: v1alpha1.LocalObjectReference{
+							SecretRef: &api.SecretKeySelector{
+								LocalObjectReference: api.LocalObjectReference{
 									Name: "my-fulcio-secret",
 								},
 								Key: "cert",
@@ -139,8 +140,8 @@ var _ = Describe("Securesign install with provided certs", Ordered, func() {
 						},
 						{
 							Name: "rekor.pub",
-							SecretRef: &v1alpha1.SecretKeySelector{
-								LocalObjectReference: v1alpha1.LocalObjectReference{
+							SecretRef: &api.SecretKeySelector{
+								LocalObjectReference: api.LocalObjectReference{
 									Name: "my-rekor-secret",
 								},
 								Key: "public",
@@ -148,8 +149,8 @@ var _ = Describe("Securesign install with provided certs", Ordered, func() {
 						},
 						{
 							Name: "ctfe.pub",
-							SecretRef: &v1alpha1.SecretKeySelector{
-								LocalObjectReference: v1alpha1.LocalObjectReference{
+							SecretRef: &api.SecretKeySelector{
+								LocalObjectReference: api.LocalObjectReference{
 									Name: "my-ctlog-secret",
 								},
 								Key: "public",

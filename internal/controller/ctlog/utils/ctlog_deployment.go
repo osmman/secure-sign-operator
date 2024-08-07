@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/securesign/operator/api/v1alpha1"
+	"github.com/securesign/operator/api/v1alpha2"
 	"github.com/securesign/operator/internal/controller/common/utils"
 	"github.com/securesign/operator/internal/controller/constants"
 	appsv1 "k8s.io/api/apps/v1"
@@ -13,7 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-func CreateDeployment(instance *v1alpha1.CTlog, deploymentName string, sa string, labels map[string]string, serverPort, metricsPort int32) (*appsv1.Deployment, error) {
+func CreateDeployment(instance *v1alpha2.CTlog, deploymentName string, sa string, labels map[string]string, serverPort, metricsPort int32) (*appsv1.Deployment, error) {
 	switch {
 	case instance.Status.ServerConfigRef == nil:
 		return nil, fmt.Errorf("CreateCTLogDeployment: %w", ServerConfigNotSpecified)

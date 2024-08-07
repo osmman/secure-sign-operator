@@ -4,6 +4,7 @@ package e2e
 
 import (
 	"context"
+	"github.com/securesign/operator/api"
 	"net/http"
 	"os"
 	"time"
@@ -54,7 +55,7 @@ var _ = Describe("Securesign install with certificate generation", Ordered, func
 			},
 			Spec: v1alpha1.SecuresignSpec{
 				Rekor: v1alpha1.RekorSpec{
-					ExternalAccess: v1alpha1.ExternalAccess{
+					ExternalAccess: api.ExternalAccess{
 						Enabled: true,
 					},
 					RekorSearchUI: v1alpha1.RekorSearchUI{
@@ -62,7 +63,7 @@ var _ = Describe("Securesign install with certificate generation", Ordered, func
 					},
 				},
 				Fulcio: v1alpha1.FulcioSpec{
-					ExternalAccess: v1alpha1.ExternalAccess{
+					ExternalAccess: api.ExternalAccess{
 						Enabled: true,
 					},
 					Config: v1alpha1.FulcioConfig{
@@ -82,7 +83,7 @@ var _ = Describe("Securesign install with certificate generation", Ordered, func
 				},
 				Ctlog: v1alpha1.CTlogSpec{},
 				Tuf: v1alpha1.TufSpec{
-					ExternalAccess: v1alpha1.ExternalAccess{
+					ExternalAccess: api.ExternalAccess{
 						Enabled: true,
 					},
 				},
@@ -123,7 +124,7 @@ var _ = Describe("Securesign install with certificate generation", Ordered, func
 		})
 
 		It("operator should generate rekor secret", func() {
-			Eventually(func() *v1alpha1.SecretKeySelector {
+			Eventually(func() *api.SecretKeySelector {
 				return tas.GetRekor(ctx, cli, namespace.Name, securesign.Name)().Status.Signer.KeyRef
 			}).Should(Not(BeNil()))
 			Eventually(func(g Gomega) *v1.Secret {

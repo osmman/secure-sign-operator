@@ -2,9 +2,10 @@ package actions
 
 import (
 	"context"
+	"github.com/securesign/operator/api"
 	"slices"
 
-	"github.com/securesign/operator/api/v1alpha1"
+	"github.com/securesign/operator/api/v1alpha2"
 	"github.com/securesign/operator/internal/controller/common/action"
 	k8sutils "github.com/securesign/operator/internal/controller/common/utils/kubernetes"
 	"github.com/securesign/operator/internal/controller/constants"
@@ -16,7 +17,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func NewHandleFulcioCertAction() action.Action[*v1alpha1.CTlog] {
+func NewHandleFulcioCertAction() action.Action[*v1alpha2.CTlog] {
 	return &handleFulcioCert{}
 }
 
@@ -28,11 +29,17 @@ func (g handleFulcioCert) Name() string {
 	return "handle-fulcio-cert"
 }
 
-func (g handleFulcioCert) CanHandle(ctx context.Context, instance *v1alpha1.CTlog) bool {
+func (g handleFulcioCert) CanHandle(ctx context.Context, instance *v1alpha2.CTlog) bool {
 	c := meta.FindStatusCondition(instance.GetConditions(), constants.Ready)
 	if c.Reason != constants.Creating && c.Reason != constants.Ready {
 		return false
 	}
+
+	// if is not read and missing RootsPEMFile inject Fulcio certificate and status is not set
+
+	instance.Spec.LogConfig[0].RootsPemFile = nil // search all Fulcio certs and filter these which contains latest
+
+
 
 	if len(instance.Status.RootCertificates) == 0 {
 		return true
@@ -45,8 +52,8 @@ func (g handleFulcioCert) CanHandle(ctx context.Context, instance *v1alpha1.CTlo
 	if len(instance.Spec.RootCertificates) == 0 {
 		// test if autodiscovery find new secret
 		if scr, _ := k8sutils.FindSecret(ctx, g.Client, instance.Namespace, actions.FulcioCALabel); scr != nil {
-			return !slices.Contains(instance.Status.RootCertificates, v1alpha1.SecretKeySelector{
-				LocalObjectReference: v1alpha1.LocalObjectReference{Name: scr.Name},
+			return !slices.Contains(instance.Status.RootCertificates, api.SecretKeySelector{
+				LocalObjectReference: api.LocalObjectReference{Name: scr.Name},
 				Key:                  scr.Labels[actions.FulcioCALabel],
 			})
 		}
@@ -55,7 +62,7 @@ func (g handleFulcioCert) CanHandle(ctx context.Context, instance *v1alpha1.CTlo
 	return false
 }
 
-func (g handleFulcioCert) Handle(ctx context.Context, instance *v1alpha1.CTlog) *action.Result {
+func (g handleFulcioCert) Handle(ctx context.Context, instance *v1alpha2.CTlog) *action.Result {
 
 	if meta.FindStatusCondition(instance.Status.Conditions, constants.Ready).Reason != constants.Creating {
 		meta.SetStatusCondition(&instance.Status.Conditions, metav1.Condition{
@@ -83,9 +90,9 @@ func (g handleFulcioCert) Handle(ctx context.Context, instance *v1alpha1.CTlog) 
 			g.StatusUpdate(ctx, instance)
 			return g.Requeue()
 		}
-		instance.Status.RootCertificates = []v1alpha1.SecretKeySelector{
+		instance.Status.RootCertificates = []api.SecretKeySelector{
 			{
-				LocalObjectReference: v1alpha1.LocalObjectReference{
+				LocalObjectReference: api.LocalObjectReference{
 					Name: scr.Name,
 				},
 				Key: scr.Labels[actions.FulcioCALabel],

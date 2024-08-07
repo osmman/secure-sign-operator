@@ -2,6 +2,7 @@ package actions
 
 import (
 	"context"
+	"github.com/securesign/operator/api"
 	"testing"
 
 	"github.com/go-logr/logr"
@@ -57,8 +58,8 @@ func TestKeyProvided(t *testing.T) {
 	instance := &v1alpha1.Tuf{Spec: v1alpha1.TufSpec{Keys: []v1alpha1.TufKey{
 		{
 			Name: "rekor.pub",
-			SecretRef: &v1alpha1.SecretKeySelector{
-				LocalObjectReference: v1alpha1.LocalObjectReference{
+			SecretRef: &api.SecretKeySelector{
+				LocalObjectReference: api.LocalObjectReference{
 					Name: "secret",
 				},
 				Key: "key",
@@ -85,8 +86,8 @@ func TestKeyUpdate(t *testing.T) {
 		Spec: v1alpha1.TufSpec{Keys: []v1alpha1.TufKey{
 			{
 				Name: "rekor.pub",
-				SecretRef: &v1alpha1.SecretKeySelector{
-					LocalObjectReference: v1alpha1.LocalObjectReference{
+				SecretRef: &api.SecretKeySelector{
+					LocalObjectReference: api.LocalObjectReference{
 						Name: "new",
 					},
 					Key: "key",
@@ -96,8 +97,8 @@ func TestKeyUpdate(t *testing.T) {
 		Status: v1alpha1.TufStatus{Keys: []v1alpha1.TufKey{
 			{
 				Name: "rekor.pub",
-				SecretRef: &v1alpha1.SecretKeySelector{
-					LocalObjectReference: v1alpha1.LocalObjectReference{
+				SecretRef: &api.SecretKeySelector{
+					LocalObjectReference: api.LocalObjectReference{
 						Name: "old",
 					},
 					Key: "key",
@@ -134,8 +135,8 @@ func TestKeyDelete(t *testing.T) {
 		Status: v1alpha1.TufStatus{Keys: []v1alpha1.TufKey{
 			{
 				Name: "ctfe.pub",
-				SecretRef: &v1alpha1.SecretKeySelector{
-					LocalObjectReference: v1alpha1.LocalObjectReference{
+				SecretRef: &api.SecretKeySelector{
+					LocalObjectReference: api.LocalObjectReference{
 						Name: "old",
 					},
 					Key: "key",

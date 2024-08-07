@@ -18,6 +18,7 @@ package tuf
 
 import (
 	"context"
+	"github.com/securesign/operator/api"
 	"maps"
 	"time"
 
@@ -93,7 +94,7 @@ var _ = Describe("TUF update test", func() {
 						Namespace: TufNamespace,
 					},
 					Spec: v1alpha1.TufSpec{
-						ExternalAccess: v1alpha1.ExternalAccess{
+						ExternalAccess: api.ExternalAccess{
 							Host:    "tuf.localhost",
 							Enabled: true,
 						},
@@ -101,8 +102,8 @@ var _ = Describe("TUF update test", func() {
 						Keys: []v1alpha1.TufKey{
 							{
 								Name: "fulcio_v1.crt.pem",
-								SecretRef: &v1alpha1.SecretKeySelector{
-									LocalObjectReference: v1alpha1.LocalObjectReference{
+								SecretRef: &api.SecretKeySelector{
+									LocalObjectReference: api.LocalObjectReference{
 										Name: "fulcio-pub-key",
 									},
 									Key: "cert",
@@ -113,8 +114,8 @@ var _ = Describe("TUF update test", func() {
 							},
 							{
 								Name: "rekor.pub",
-								SecretRef: &v1alpha1.SecretKeySelector{
-									LocalObjectReference: v1alpha1.LocalObjectReference{
+								SecretRef: &api.SecretKeySelector{
+									LocalObjectReference: api.LocalObjectReference{
 										Name: "rekor-pub-key",
 									},
 									Key: "public",

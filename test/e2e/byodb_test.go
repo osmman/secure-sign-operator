@@ -4,6 +4,7 @@ package e2e
 
 import (
 	"context"
+	"github.com/securesign/operator/api"
 	"os"
 	"time"
 
@@ -54,12 +55,12 @@ var _ = Describe("Securesign install with byodb", Ordered, func() {
 			},
 			Spec: v1alpha1.SecuresignSpec{
 				Rekor: v1alpha1.RekorSpec{
-					ExternalAccess: v1alpha1.ExternalAccess{
+					ExternalAccess: api.ExternalAccess{
 						Enabled: true,
 					},
 				},
 				Fulcio: v1alpha1.FulcioSpec{
-					ExternalAccess: v1alpha1.ExternalAccess{
+					ExternalAccess: api.ExternalAccess{
 						Enabled: true,
 					},
 					Config: v1alpha1.FulcioConfig{
@@ -78,14 +79,14 @@ var _ = Describe("Securesign install with byodb", Ordered, func() {
 					},
 				},
 				Tuf: v1alpha1.TufSpec{
-					ExternalAccess: v1alpha1.ExternalAccess{
+					ExternalAccess: api.ExternalAccess{
 						Enabled: true,
 					},
 				},
 				Ctlog: v1alpha1.CTlogSpec{},
 				Trillian: v1alpha1.TrillianSpec{Db: v1alpha1.TrillianDB{
 					Create: new(bool),
-					DatabaseSecretRef: &v1alpha1.LocalObjectReference{
+					DatabaseSecretRef: &api.LocalObjectReference{
 						Name: "my-db",
 					},
 				}},

@@ -19,7 +19,7 @@ package main
 import (
 	"crypto/tls"
 	"flag"
-
+	rhtasv1alpha2 "github.com/securesign/operator/api/v1alpha2"
 	"net/http"
 	"os"
 	"strconv"
@@ -74,6 +74,7 @@ func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 	utilruntime.Must(monitoringv1.AddToScheme(scheme))
 	utilruntime.Must(rhtasv1alpha1.AddToScheme(scheme))
+	utilruntime.Must(rhtasv1alpha2.AddToScheme(scheme))
 	utilruntime.Must(routev1.AddToScheme(scheme))
 	utilruntime.Must(v1.AddToScheme(scheme))
 	utilruntime.Must(consolev1.AddToScheme(scheme))
@@ -236,6 +237,12 @@ func main() {
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "CTlog")
 		os.Exit(1)
+	}
+	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
+		if err = (&rhtasv1alpha2.CTlog{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "CTlog")
+			os.Exit(1)
+		}
 	}
 	//+kubebuilder:scaffold:builder
 

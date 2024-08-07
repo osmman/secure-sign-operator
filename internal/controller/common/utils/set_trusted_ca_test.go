@@ -1,12 +1,12 @@
 package utils
 
 import (
+	"github.com/securesign/operator/api"
 	"reflect"
 	"testing"
 
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gstruct"
-	"github.com/securesign/operator/api/v1alpha1"
 	"github.com/securesign/operator/internal/controller/annotations"
 	corev1 "k8s.io/api/core/v1"
 )
@@ -51,7 +51,7 @@ func TestSetTrustedCA(t *testing.T) {
 	type asserts func(*corev1.PodTemplateSpec, error)
 	type args struct {
 		dep *corev1.PodTemplateSpec
-		lor *v1alpha1.LocalObjectReference
+		lor *api.LocalObjectReference
 	}
 	tests := []struct {
 		name  string
@@ -119,7 +119,7 @@ func TestSetTrustedCA(t *testing.T) {
 			name: "mount config map",
 			args: args{
 				dep: deployment(),
-				lor: &v1alpha1.LocalObjectReference{Name: "trusted"},
+				lor: &api.LocalObjectReference{Name: "trusted"},
 			},
 			want: func(spec *corev1.PodTemplateSpec, _ error) {
 
@@ -205,7 +205,7 @@ func TestTrustedCAAnnotationToReference(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want *v1alpha1.LocalObjectReference
+		want *api.LocalObjectReference
 	}{
 		{
 			name: "nil",
@@ -236,7 +236,7 @@ func TestTrustedCAAnnotationToReference(t *testing.T) {
 				"annotation":          "value",
 				annotations.TrustedCA: "trusted",
 			}},
-			want: &v1alpha1.LocalObjectReference{Name: "trusted"},
+			want: &api.LocalObjectReference{Name: "trusted"},
 		},
 	}
 	for _, tt := range tests {

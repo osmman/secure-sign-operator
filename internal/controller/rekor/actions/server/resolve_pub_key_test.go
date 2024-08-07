@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/securesign/operator/api"
 	"io"
 	"net/http"
 	"reflect"
@@ -34,13 +35,13 @@ func TestResolvePubKey_CanHandle(t *testing.T) {
 		name      string
 		status    metav1.ConditionStatus
 		canHandle bool
-		ref       *v1alpha1.SecretKeySelector
+		ref       *api.SecretKeySelector
 	}{
 		{
 			name:      "ref set",
 			status:    metav1.ConditionFalse,
 			canHandle: false,
-			ref:       &v1alpha1.SecretKeySelector{},
+			ref:       &api.SecretKeySelector{},
 		},
 		{
 			name:      "no server condition",

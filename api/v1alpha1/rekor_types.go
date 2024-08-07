@@ -1,6 +1,7 @@
 package v1alpha1
 
 import (
+	"github.com/securesign/operator/api"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -16,11 +17,11 @@ type RekorSpec struct {
 	TreeID *int64 `json:"treeID,omitempty"`
 	// Trillian service configuration
 	//+kubebuilder:default:={port: 8091}
-	Trillian TrillianService `json:"trillian,omitempty"`
+	Trillian api.TrillianService `json:"trillian,omitempty"`
 	// Define whether you want to export service or not
-	ExternalAccess ExternalAccess `json:"externalAccess,omitempty"`
+	ExternalAccess api.ExternalAccess `json:"externalAccess,omitempty"`
 	//Enable Service monitors for rekor
-	Monitoring MonitoringConfig `json:"monitoring,omitempty"`
+	Monitoring api.MonitoringConfig `json:"monitoring,omitempty"`
 	// Rekor Search UI
 	//+kubebuilder:default:={enabled: true}
 	RekorSearchUI RekorSearchUI `json:"rekorSearchUI,omitempty"`
@@ -28,7 +29,7 @@ type RekorSpec struct {
 	Signer RekorSigner `json:"signer,omitempty"`
 	// PVC configuration
 	//+kubebuilder:default:={size: "5Gi", retain: true}
-	Pvc Pvc `json:"pvc,omitempty"`
+	Pvc api.Pvc `json:"pvc,omitempty"`
 	// BackFillRedis CronJob Configuration
 	//+kubebuilder:default:={enabled: true, schedule: "0 0 * * *"}
 	BackFillRedis BackFillRedis `json:"backFillRedis,omitempty"`
@@ -48,10 +49,10 @@ type RekorSigner struct {
 
 	// Password to decrypt signer private key
 	//+optional
-	PasswordRef *SecretKeySelector `json:"passwordRef,omitempty"`
+	PasswordRef *api.SecretKeySelector `json:"passwordRef,omitempty"`
 	// Reference to signer private key
 	//+optional
-	KeyRef *SecretKeySelector `json:"keyRef,omitempty"`
+	KeyRef *api.SecretKeySelector `json:"keyRef,omitempty"`
 }
 
 type RekorSearchUI struct {
@@ -95,12 +96,12 @@ type RekorLogRange struct {
 type RekorStatus struct {
 	// Reference to secret with Rekor's signer public key.
 	// Public key is automatically generated from signer private key.
-	PublicKeyRef     *SecretKeySelector    `json:"publicKeyRef,omitempty"`
-	ServerConfigRef  *LocalObjectReference `json:"serverConfigRef,omitempty"`
-	Signer           RekorSigner           `json:"signer,omitempty"`
-	PvcName          string                `json:"pvcName,omitempty"`
-	Url              string                `json:"url,omitempty"`
-	RekorSearchUIUrl string                `json:"rekorSearchUIUrl,omitempty"`
+	PublicKeyRef     *api.SecretKeySelector    `json:"publicKeyRef,omitempty"`
+	ServerConfigRef  *api.LocalObjectReference `json:"serverConfigRef,omitempty"`
+	Signer           RekorSigner               `json:"signer,omitempty"`
+	PvcName          string                    `json:"pvcName,omitempty"`
+	Url              string                    `json:"url,omitempty"`
+	RekorSearchUIUrl string                    `json:"rekorSearchUIUrl,omitempty"`
 	// The ID of a Trillian tree that stores the log data.
 	TreeID *int64 `json:"treeID,omitempty"`
 	// +listType=map

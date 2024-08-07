@@ -3,8 +3,9 @@ package actions
 import (
 	"context"
 	"fmt"
+	"github.com/securesign/operator/api"
 
-	"github.com/securesign/operator/api/v1alpha1"
+	"github.com/securesign/operator/api/v1alpha2"
 	"github.com/securesign/operator/internal/controller/common/action"
 	k8sutils "github.com/securesign/operator/internal/controller/common/utils/kubernetes"
 	"github.com/securesign/operator/internal/controller/constants"
@@ -20,7 +21,7 @@ import (
 
 const KeySecretNameFormat = "ctlog-%s-keys-"
 
-func NewHandleKeysAction() action.Action[*v1alpha1.CTlog] {
+func NewHandleKeysAction() action.Action[*v1alpha2.CTlog] {
 	return &handleKeys{}
 }
 
@@ -32,7 +33,7 @@ func (g handleKeys) Name() string {
 	return "handle-keys"
 }
 
-func (g handleKeys) CanHandle(ctx context.Context, instance *v1alpha1.CTlog) bool {
+func (g handleKeys) CanHandle(ctx context.Context, instance *v1alpha2.CTlog) bool {
 	c := meta.FindStatusCondition(instance.Status.Conditions, constants.Ready)
 	if c.Reason != constants.Creating && c.Reason != constants.Ready {
 		return false
@@ -44,7 +45,7 @@ func (g handleKeys) CanHandle(ctx context.Context, instance *v1alpha1.CTlog) boo
 		!equality.Semantic.DeepDerivative(instance.Spec.PrivateKeyPasswordRef, instance.Status.PublicKeyRef)
 }
 
-func (g handleKeys) Handle(ctx context.Context, instance *v1alpha1.CTlog) *action.Result {
+func (g handleKeys) Handle(ctx context.Context, instance *v1alpha2.CTlog) *action.Result {
 	if meta.FindStatusCondition(instance.Status.Conditions, constants.Ready).Reason != constants.Creating {
 		meta.SetStatusCondition(&instance.Status.Conditions, metav1.Condition{
 			Type:   constants.Ready,
@@ -132,9 +133,9 @@ func (g handleKeys) Handle(ctx context.Context, instance *v1alpha1.CTlog) *actio
 	}
 
 	if instance.Spec.PrivateKeyRef == nil {
-		instance.Status.PrivateKeyRef = &v1alpha1.SecretKeySelector{
+		instance.Status.PrivateKeyRef = &api.SecretKeySelector{
 			Key: "private",
-			LocalObjectReference: v1alpha1.LocalObjectReference{
+			LocalObjectReference: api.LocalObjectReference{
 				Name: secret.Name,
 			},
 		}
@@ -143,9 +144,9 @@ func (g handleKeys) Handle(ctx context.Context, instance *v1alpha1.CTlog) *actio
 	}
 
 	if _, ok := data["password"]; instance.Spec.PrivateKeyPasswordRef == nil && ok {
-		instance.Status.PrivateKeyPasswordRef = &v1alpha1.SecretKeySelector{
+		instance.Status.PrivateKeyPasswordRef = &api.SecretKeySelector{
 			Key: "password",
-			LocalObjectReference: v1alpha1.LocalObjectReference{
+			LocalObjectReference: api.LocalObjectReference{
 				Name: secret.Name,
 			},
 		}
@@ -154,9 +155,9 @@ func (g handleKeys) Handle(ctx context.Context, instance *v1alpha1.CTlog) *actio
 	}
 
 	if instance.Spec.PublicKeyRef == nil {
-		instance.Status.PublicKeyRef = &v1alpha1.SecretKeySelector{
+		instance.Status.PublicKeyRef = &api.SecretKeySelector{
 			Key: "public",
-			LocalObjectReference: v1alpha1.LocalObjectReference{
+			LocalObjectReference: api.LocalObjectReference{
 				Name: secret.Name,
 			},
 		}

@@ -4,11 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-
+	"github.com/securesign/operator/api"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
-	rhtasv1alpha1 "github.com/securesign/operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -53,7 +52,7 @@ func GetSecret(client client.Client, namespace, secretName string) (*corev1.Secr
 	return &secret, nil
 }
 
-func GetSecretData(client client.Client, namespace string, selector *rhtasv1alpha1.SecretKeySelector) ([]byte, error) {
+func GetSecretData(client client.Client, namespace string, selector *api.SecretKeySelector) ([]byte, error) {
 	if selector != nil && selector.Name != "" && selector.Key != "" {
 		secret, err := GetSecret(client, namespace, selector.Name)
 		if err != nil {

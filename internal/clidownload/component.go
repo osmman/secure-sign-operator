@@ -3,10 +3,10 @@ package clidownload
 import (
 	"context"
 	"fmt"
+	rhtasv1alpha1 "github.com/securesign/operator/api"
 
 	"github.com/go-logr/logr"
 	consolev1 "github.com/openshift/api/console/v1"
-	rhtasv1alpha1 "github.com/securesign/operator/api/v1alpha1"
 	"github.com/securesign/operator/internal/controller/common/utils/kubernetes"
 	"github.com/securesign/operator/internal/controller/constants"
 	apps "k8s.io/api/apps/v1"

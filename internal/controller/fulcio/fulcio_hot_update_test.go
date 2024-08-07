@@ -18,6 +18,7 @@ package fulcio
 
 import (
 	"context"
+	"github.com/securesign/operator/api"
 	"time"
 
 	"github.com/securesign/operator/api/v1alpha1"
@@ -90,7 +91,7 @@ var _ = Describe("Fulcio hot update", func() {
 						Namespace: Namespace,
 					},
 					Spec: v1alpha1.FulcioSpec{
-						ExternalAccess: v1alpha1.ExternalAccess{
+						ExternalAccess: api.ExternalAccess{
 							Host:    "fulcio.localhost",
 							Enabled: true,
 						},
@@ -109,7 +110,7 @@ var _ = Describe("Fulcio hot update", func() {
 							OrganizationEmail: "my@email.com",
 							CommonName:        "local",
 						},
-						Monitoring: v1alpha1.MonitoringConfig{Enabled: false},
+						Monitoring: api.MonitoringConfig{Enabled: false},
 					},
 				}
 				err = k8sClient.Create(ctx, instance)
@@ -144,8 +145,8 @@ var _ = Describe("Fulcio hot update", func() {
 			By("Key rotation")
 			Eventually(func(g Gomega) error {
 				g.Expect(k8sClient.Get(ctx, typeNamespaceName, found)).Should(Succeed())
-				found.Spec.Certificate.PrivateKeyPasswordRef = &v1alpha1.SecretKeySelector{
-					LocalObjectReference: v1alpha1.LocalObjectReference{
+				found.Spec.Certificate.PrivateKeyPasswordRef = &api.SecretKeySelector{
+					LocalObjectReference: api.LocalObjectReference{
 						Name: "password-secret",
 					},
 					Key: "password",
