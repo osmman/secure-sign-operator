@@ -22,4 +22,8 @@ const (
 	ServerPortName  = "grpc"
 	MetricsPort     = 8090
 	MetricsPortName = "metrics"
+
+	DbPort     int32 = 3306
+	DbPortName       = "mysql"
+	DbHost           = "trillian-mysql"
 )

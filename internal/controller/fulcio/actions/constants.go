@@ -9,11 +9,11 @@ const (
 
 	CertCondition = "FulcioCertAvailable"
 
-	ServerPortName   = "http"
-	ServerPort       = 80
-	TargetServerPort = 5555
-	GRPCPortName     = "grpc"
-	GRPCPort         = 5554
-	MetricsPortName  = "metrics"
-	MetricsPort      = 2112
+	ServerPortName         = "http"
+	ServerPort       int32 = 80
+	TargetServerPort int32 = 5555
+	GRPCPortName           = "grpc"
+	GRPCPort         int32 = 5554
+	MetricsPortName        = "metrics"
+	MetricsPort      int32 = 2112
 )

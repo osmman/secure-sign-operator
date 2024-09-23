@@ -12,7 +12,7 @@ const (
 	RedisDeploymentPort        = 6379
 	SearchUiDeploymentName     = "rekor-search-ui"
 	SearchUiDeploymentPortName = "http"
-	SearchUiDeploymentPort     = 3000
+	SearchUiDeploymentPort     = 80
 	RBACName                   = "rekor"
 	MonitoringRoleName         = "prometheus-k8s-rekor"
 	ServerComponentName        = "rekor-server"

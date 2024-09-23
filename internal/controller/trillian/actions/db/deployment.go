@@ -56,11 +56,11 @@ func (i deployAction) Handle(ctx context.Context, instance *rhtasv1alpha1.Trilli
 	case kubernetes.IsOpenShift():
 		instance.Status.Db.TLS = rhtasv1alpha1.TLS{
 			CertRef: &rhtasv1alpha1.SecretKeySelector{
-				LocalObjectReference: rhtasv1alpha1.LocalObjectReference{Name: instance.Name + "-trillian-db-tls"},
+				LocalObjectReference: rhtasv1alpha1.LocalObjectReference{Name: fmt.Sprintf(kubernetes.TlsSecretNameMask, instance.GetName())},
 				Key:                  "tls.crt",
 			},
 			PrivateKeyRef: &rhtasv1alpha1.SecretKeySelector{
-				LocalObjectReference: rhtasv1alpha1.LocalObjectReference{Name: instance.Name + "-trillian-db-tls"},
+				LocalObjectReference: rhtasv1alpha1.LocalObjectReference{Name: fmt.Sprintf(kubernetes.TlsSecretNameMask, instance.GetName())},
 				Key:                  "tls.key",
 			},
 		}

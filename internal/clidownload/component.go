@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"k8s.io/apimachinery/pkg/util/intstr"
+
 	"github.com/go-logr/logr"
 	consolev1 "github.com/openshift/api/console/v1"
 	rhtasv1alpha1 "github.com/securesign/operator/api/v1alpha1"
@@ -56,7 +58,14 @@ func (c *Component) Start(ctx context.Context) error {
 
 	obj = append(obj, ns)
 	obj = append(obj, c.createDeployment(ns.Name, labels))
-	svc := kubernetes.CreateService(ns.Name, cliServerName, cliServerPortName, cliServerPort, cliServerPort, labels)
+	svc := kubernetes.CreateService(ns.Name, cliServerName, []core.ServicePort{
+		{
+			Name:       cliServerPortName,
+			Port:       cliServerPort,
+			Protocol:   core.ProtocolTCP,
+			TargetPort: intstr.FromInt32(cliServerPort),
+		},
+	}, labels)
 	obj = append(obj, svc)
 	ingress, err := kubernetes.CreateIngress(ctx, c.Client, *svc, rhtasv1alpha1.ExternalAccess{Host: CliHostName}, cliServerPortName, labels)
 	if err != nil {

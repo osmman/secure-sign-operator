@@ -19,11 +19,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-const (
-	port = 3306
-	host = "trillian-mysql"
-)
-
 func NewHandleSecretAction() action.Action[*rhtasv1alpha1.Trillian] {
 	return &handleSecretAction{}
 }
@@ -103,8 +98,8 @@ func (i handleSecretAction) createDbSecret(namespace string, labels map[string]s
 			"mysql-password":      mysqlPass,
 			"mysql-database":      []byte("trillian"),
 			"mysql-user":          []byte("mysql"),
-			"mysql-port":          []byte(strconv.Itoa(port)),
-			"mysql-host":          []byte(host),
+			"mysql-port":          []byte(strconv.Itoa(int(trillian.DbPort))),
+			"mysql-host":          []byte(trillian.DbHost),
 		},
 	}
 }

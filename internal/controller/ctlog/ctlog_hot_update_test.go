@@ -20,6 +20,8 @@ import (
 	"context"
 	"time"
 
+	"k8s.io/apimachinery/pkg/util/intstr"
+
 	k8sTest "github.com/securesign/operator/internal/testing/kubernetes"
 
 	"github.com/securesign/operator/internal/controller/ctlog/utils"
@@ -113,7 +115,18 @@ var _ = Describe("CTlog update test", func() {
 			}).Should(Succeed())
 
 			By("Creating trillian service")
-			Expect(k8sClient.Create(ctx, kubernetes.CreateService(Namespace, trillian.LogserverDeploymentName, trillian.ServerPortName, trillian.ServerPort, trillian.ServerPort, constants.LabelsForComponent(trillian.LogServerComponentName, instance.Name)))).To(Succeed())
+			Expect(k8sClient.Create(ctx, kubernetes.CreateService(
+				Namespace,
+				trillian.LogserverDeploymentName,
+				[]corev1.ServicePort{
+					{
+						Name:       trillian.ServerPortName,
+						Port:       trillian.ServerPort,
+						Protocol:   corev1.ProtocolTCP,
+						TargetPort: intstr.FromInt32(trillian.ServerPort),
+					},
+				},
+				constants.LabelsForComponent(trillian.LogServerComponentName, instance.Name)))).To(Succeed())
 
 			By("Creating fulcio root cert")
 			fulcioCa := kubernetes.CreateSecret("test", Namespace,

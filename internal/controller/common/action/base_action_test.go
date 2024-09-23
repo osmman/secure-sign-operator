@@ -66,8 +66,15 @@ func TestBaseAction_Ensure(t *testing.T) {
 		env    env
 	}{
 		{
-			name:   "create new object",
-			object: kubernetes.CreateService("default", "service", "http", 80, 80, map[string]string{}),
+			name: "create new object",
+			object: kubernetes.CreateService("default", "service", []v1.ServicePort{
+				{
+					Name:       "http",
+					Port:       80,
+					Protocol:   v1.ProtocolTCP,
+					TargetPort: intstr.FromInt32(80),
+				},
+			}, map[string]string{}),
 			verify: func(g Gomega, cli client.WithWatch, result bool, err error) {
 				g.Expect(err).ToNot(HaveOccurred())
 				g.Expect(result).To(BeTrue())
@@ -87,12 +94,26 @@ func TestBaseAction_Ensure(t *testing.T) {
 			name: "update: labels",
 			env: env{
 				objects: []client.Object{
-					kubernetes.CreateService("default", "service", "http", 80, 80, map[string]string{
+					kubernetes.CreateService("default", "service", []v1.ServicePort{
+						{
+							Name:       "http",
+							Port:       80,
+							Protocol:   v1.ProtocolTCP,
+							TargetPort: intstr.FromInt32(80),
+						},
+					}, map[string]string{
 						"old": "label",
 					}),
 				},
 			},
-			object: kubernetes.CreateService("default", "service", "http", 80, 80, map[string]string{
+			object: kubernetes.CreateService("default", "service", []v1.ServicePort{
+				{
+					Name:       "http",
+					Port:       80,
+					Protocol:   v1.ProtocolTCP,
+					TargetPort: intstr.FromInt32(80),
+				},
+			}, map[string]string{
 				"new": "label",
 			}),
 			verify: func(g Gomega, cli client.WithWatch, result bool, err error) {
@@ -117,13 +138,27 @@ func TestBaseAction_Ensure(t *testing.T) {
 			name: "remove managed label",
 			env: env{
 				objects: []client.Object{
-					kubernetes.CreateService("default", "service", "http", 80, 80, map[string]string{
+					kubernetes.CreateService("default", "service", []v1.ServicePort{
+						{
+							Name:       "http",
+							Port:       80,
+							Protocol:   v1.ProtocolTCP,
+							TargetPort: intstr.FromInt32(80),
+						},
+					}, map[string]string{
 						"managed":   "value",
 						"unmanaged": "value",
 					}),
 				},
 			},
-			object: kubernetes.CreateService("default", "service", "http", 80, 80, map[string]string{
+			object: kubernetes.CreateService("default", "service", []v1.ServicePort{
+				{
+					Name:       "http",
+					Port:       80,
+					Protocol:   v1.ProtocolTCP,
+					TargetPort: intstr.FromInt32(80),
+				},
+			}, map[string]string{
 				"unmanaged": "value",
 			}),
 			verify: func(g Gomega, cli client.WithWatch, result bool, err error) {
@@ -148,7 +183,14 @@ func TestBaseAction_Ensure(t *testing.T) {
 			env: env{
 				objects: []client.Object{
 					addAnnotations(
-						kubernetes.CreateService("default", "service", "http", 80, 80, map[string]string{}),
+						kubernetes.CreateService("default", "service", []v1.ServicePort{
+							{
+								Name:       "http",
+								Port:       80,
+								Protocol:   v1.ProtocolTCP,
+								TargetPort: intstr.FromInt32(80),
+							},
+						}, map[string]string{}),
 						map[string]string{
 							"old": "annotation",
 						},
@@ -156,7 +198,14 @@ func TestBaseAction_Ensure(t *testing.T) {
 				},
 			},
 			object: addAnnotations(
-				kubernetes.CreateService("default", "service", "http", 80, 80, map[string]string{}),
+				kubernetes.CreateService("default", "service", []v1.ServicePort{
+					{
+						Name:       "http",
+						Port:       80,
+						Protocol:   v1.ProtocolTCP,
+						TargetPort: intstr.FromInt32(80),
+					},
+				}, map[string]string{}),
 				map[string]string{
 					"new": "annotation",
 				}),
@@ -183,7 +232,14 @@ func TestBaseAction_Ensure(t *testing.T) {
 			env: env{
 				objects: []client.Object{
 					addAnnotations(
-						kubernetes.CreateService("default", "service", "http", 80, 80, map[string]string{}),
+						kubernetes.CreateService("default", "service", []v1.ServicePort{
+							{
+								Name:       "http",
+								Port:       80,
+								Protocol:   v1.ProtocolTCP,
+								TargetPort: intstr.FromInt32(80),
+							},
+						}, map[string]string{}),
 						map[string]string{
 							"managed":   "value",
 							"unmanaged": "value",
@@ -191,7 +247,14 @@ func TestBaseAction_Ensure(t *testing.T) {
 					),
 				},
 			},
-			object: addAnnotations(kubernetes.CreateService("default", "service", "http", 80, 80, map[string]string{}), map[string]string{}),
+			object: addAnnotations(kubernetes.CreateService("default", "service", []v1.ServicePort{
+				{
+					Name:       "http",
+					Port:       80,
+					Protocol:   v1.ProtocolTCP,
+					TargetPort: intstr.FromInt32(80),
+				},
+			}, map[string]string{}), map[string]string{}),
 			verify: func(g Gomega, cli client.WithWatch, result bool, err error) {
 				g.Expect(err).ToNot(HaveOccurred())
 				g.Expect(result).To(BeTrue())
@@ -214,10 +277,24 @@ func TestBaseAction_Ensure(t *testing.T) {
 			name: "update: different spec",
 			env: env{
 				objects: []client.Object{
-					kubernetes.CreateService("default", "service", "http", 80, 80, map[string]string{}),
+					kubernetes.CreateService("default", "service", []v1.ServicePort{
+						{
+							Name:       "http",
+							Port:       80,
+							Protocol:   v1.ProtocolTCP,
+							TargetPort: intstr.FromInt32(80),
+						},
+					}, map[string]string{}),
 				},
 			},
-			object: kubernetes.CreateService("default", "service", "https", 443, 443, map[string]string{}),
+			object: kubernetes.CreateService("default", "service", []v1.ServicePort{
+				{
+					Name:       "https",
+					Port:       443,
+					Protocol:   v1.ProtocolTCP,
+					TargetPort: intstr.FromInt32(443),
+				},
+			}, map[string]string{}),
 			verify: func(g Gomega, cli client.WithWatch, result bool, err error) {
 				g.Expect(err).ToNot(HaveOccurred())
 				g.Expect(result).To(BeTrue())
@@ -276,10 +353,24 @@ func TestBaseAction_Ensure(t *testing.T) {
 			name: "not update: same spec",
 			env: env{
 				objects: []client.Object{
-					kubernetes.CreateService("default", "service", "http", 80, 80, map[string]string{}),
+					kubernetes.CreateService("default", "service", []v1.ServicePort{
+						{
+							Name:       "http",
+							Port:       80,
+							Protocol:   v1.ProtocolTCP,
+							TargetPort: intstr.FromInt32(80),
+						},
+					}, map[string]string{}),
 				},
 			},
-			object: kubernetes.CreateService("default", "service", "http", 80, 80, map[string]string{}),
+			object: kubernetes.CreateService("default", "service", []v1.ServicePort{
+				{
+					Name:       "http",
+					Port:       80,
+					Protocol:   v1.ProtocolTCP,
+					TargetPort: intstr.FromInt32(80),
+				},
+			}, map[string]string{}),
 			verify: func(g Gomega, cli client.WithWatch, result bool, err error) {
 				g.Expect(err).ToNot(HaveOccurred())
 				g.Expect(result).To(BeFalse())
@@ -301,13 +392,27 @@ func TestBaseAction_Ensure(t *testing.T) {
 			env: env{
 				objects: []client.Object{
 					addAnnotations(
-						kubernetes.CreateService("default", "service", "http", 80, 80, map[string]string{}),
+						kubernetes.CreateService("default", "service", []v1.ServicePort{
+							{
+								Name:       "http",
+								Port:       80,
+								Protocol:   v1.ProtocolTCP,
+								TargetPort: intstr.FromInt32(80),
+							},
+						}, map[string]string{}),
 						map[string]string{
 							annotations.PausedReconciliation: "true",
 						}),
 				},
 			},
-			object: kubernetes.CreateService("default", "service", "http", 443, 443, map[string]string{}),
+			object: kubernetes.CreateService("default", "service", []v1.ServicePort{
+				{
+					Name:       "http",
+					Port:       443,
+					Protocol:   v1.ProtocolTCP,
+					TargetPort: intstr.FromInt32(443),
+				},
+			}, map[string]string{}),
 			verify: func(g Gomega, cli client.WithWatch, result bool, err error) {
 				g.Expect(err).ToNot(HaveOccurred())
 				g.Expect(result).To(BeFalse())
@@ -329,13 +434,27 @@ func TestBaseAction_Ensure(t *testing.T) {
 			env: env{
 				objects: []client.Object{
 					addAnnotations(
-						kubernetes.CreateService("default", "service", "http", 80, 80, map[string]string{}),
+						kubernetes.CreateService("default", "service", []v1.ServicePort{
+							{
+								Name:       "http",
+								Port:       80,
+								Protocol:   v1.ProtocolTCP,
+								TargetPort: intstr.FromInt32(80),
+							},
+						}, map[string]string{}),
 						map[string]string{
 							annotations.PausedReconciliation: "false",
 						}),
 				},
 			},
-			object: kubernetes.CreateService("default", "service", "http", 443, 443, map[string]string{}),
+			object: kubernetes.CreateService("default", "service", []v1.ServicePort{
+				{
+					Name:       "http",
+					Port:       443,
+					Protocol:   v1.ProtocolTCP,
+					TargetPort: intstr.FromInt32(443),
+				},
+			}, map[string]string{}),
 			verify: func(g Gomega, cli client.WithWatch, result bool, err error) {
 				g.Expect(err).ToNot(HaveOccurred())
 				g.Expect(result).To(BeTrue())

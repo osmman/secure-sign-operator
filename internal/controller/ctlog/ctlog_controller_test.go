@@ -20,6 +20,8 @@ import (
 	"context"
 	"time"
 
+	"k8s.io/apimachinery/pkg/util/intstr"
+
 	"github.com/securesign/operator/api/v1alpha1"
 	"github.com/securesign/operator/internal/controller/common/utils/kubernetes"
 	"github.com/securesign/operator/internal/controller/constants"
@@ -117,7 +119,18 @@ var _ = Describe("CTlog controller", func() {
 			}).Should(BeTrue())
 
 			By("Creating trillian service")
-			Expect(k8sClient.Create(ctx, kubernetes.CreateService(Namespace, trillian.LogserverDeploymentName, trillian.ServerPortName, trillian.ServerPort, trillian.ServerPort, constants.LabelsForComponent(trillian.LogServerComponentName, instance.Name)))).To(Succeed())
+			Expect(k8sClient.Create(ctx, kubernetes.CreateService(
+				Namespace,
+				trillian.LogserverDeploymentName,
+				[]corev1.ServicePort{
+					{
+						Name:       trillian.ServerPortName,
+						Port:       trillian.ServerPort,
+						Protocol:   corev1.ProtocolTCP,
+						TargetPort: intstr.FromInt32(trillian.ServerPort),
+					},
+				},
+				constants.LabelsForComponent(trillian.LogServerComponentName, instance.Name)))).To(Succeed())
 			Eventually(func(g Gomega) string {
 				found := &v1alpha1.CTlog{}
 				g.Expect(k8sClient.Get(ctx, typeNamespaceName, found)).Should(Succeed())

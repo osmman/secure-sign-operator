@@ -112,16 +112,16 @@ func (r *RekorReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		server.NewResolveTreeAction(),
 		server.NewCreatePvcAction(),
 		server.NewDeployAction(),
-		server.NewCreateServiceAction(),
+		server.NewServiceAction(),
 		server.NewCreateMonitorAction(),
 		server.NewIngressAction(),
 		server.NewStatusUrlAction(),
 
 		redis.NewDeployAction(),
-		redis.NewCreateServiceAction(),
+		redis.NewServiceAction(),
 
 		ui.NewDeployAction(),
-		ui.NewCreateServiceAction(),
+		ui.NewServiceAction(),
 		ui.NewIngressAction(),
 
 		backfillredis.NewBackfillRedisCronJobAction(),

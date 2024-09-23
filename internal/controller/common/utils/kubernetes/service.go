@@ -8,11 +8,45 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-func CreateService(namespace string, name string, portName string, port int, targetPort int32, labels map[string]string) *corev1.Service {
+const TlsSecretNameMask = "%s-service-tls"
+
+func EnsureServiceSpec() func(current client.Object, expected client.Object) error {
+	return func(current client.Object, expected client.Object) error {
+		expectedService, ok := expected.(*corev1.Service)
+		if !ok {
+			return fmt.Errorf("expected a Service but got a %T", expected)
+		}
+
+		currentService, ok := current.(*corev1.Service)
+		if !ok {
+			return fmt.Errorf("expected a Service but got a %T", current)
+		}
+
+		currentService.Spec.Selector = expectedService.Spec.Selector
+
+		resultPorts := make([]corev1.ServicePort, 0, len(expectedService.Spec.Ports))
+		for _, port := range expectedService.Spec.Ports {
+			currentPort := getPortByName(currentService.Spec.Ports, port.Name)
+			if currentPort == nil {
+				// add
+				resultPorts = append(resultPorts, port)
+			} else {
+				// merge
+				currentPort.Protocol = port.Protocol
+				currentPort.Port = port.Port
+				currentPort.TargetPort = port.TargetPort
+				resultPorts = append(resultPorts, *currentPort)
+			}
+		}
+		currentService.Spec.Ports = resultPorts
+
+		return nil
+	}
+}
+
+func CreateService(namespace string, name string, ports []corev1.ServicePort, labels map[string]string) *corev1.Service {
 	return &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
@@ -21,14 +55,7 @@ func CreateService(namespace string, name string, portName string, port int, tar
 		},
 		Spec: corev1.ServiceSpec{
 			Selector: labels,
-			Ports: []corev1.ServicePort{
-				{
-					Name:       portName,
-					Protocol:   corev1.ProtocolTCP,
-					Port:       int32(port),
-					TargetPort: intstr.FromInt32(targetPort),
-				},
-			},
+			Ports:    ports,
 		},
 	}
 }
@@ -50,4 +77,13 @@ func GetInternalUrl(ctx context.Context, cli client.Client, namespace, serviceNa
 		return "", err
 	}
 	return fmt.Sprintf("%s.%s.svc.cluster.local", svc.Name, svc.Namespace), nil
+}
+
+func getPortByName(ports []corev1.ServicePort, name string) *corev1.ServicePort {
+	for _, port := range ports {
+		if port.Name == name {
+			return &port
+		}
+	}
+	return nil
 }

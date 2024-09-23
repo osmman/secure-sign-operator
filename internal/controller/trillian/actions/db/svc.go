@@ -1,87 +1,57 @@
 package db
 
 import (
-	"context"
 	"fmt"
 
-	"github.com/securesign/operator/internal/controller/annotations"
+	actionK8s "github.com/securesign/operator/internal/controller/common/action/kubernetes"
 	"github.com/securesign/operator/internal/controller/common/utils"
-
-	"github.com/securesign/operator/internal/controller/common/action"
-	k8sutils "github.com/securesign/operator/internal/controller/common/utils/kubernetes"
 	"github.com/securesign/operator/internal/controller/constants"
-	"github.com/securesign/operator/internal/controller/trillian/actions"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	"k8s.io/apimachinery/pkg/util/intstr"
 
 	rhtasv1alpha1 "github.com/securesign/operator/api/v1alpha1"
+	"github.com/securesign/operator/internal/controller/annotations"
+	"github.com/securesign/operator/internal/controller/common/action"
+	k8sutils "github.com/securesign/operator/internal/controller/common/utils/kubernetes"
+	"github.com/securesign/operator/internal/controller/trillian/actions"
 )
 
-func NewCreateServiceAction() action.Action[*rhtasv1alpha1.Trillian] {
-	return &createServiceAction{}
-}
+func NewServiceAction() action.Action[*rhtasv1alpha1.Trillian] {
+	return actionK8s.NewServiceAction[*rhtasv1alpha1.Trillian](
+		actionK8s.Component{
+			Name:     actions.DbComponentName,
+			Instance: actions.DbDeploymentName,
+		},
+		actions.DbCondition,
+		actionK8s.MutateFn(func(expected *corev1.Service, instance *rhtasv1alpha1.Trillian) error {
+			ports := []corev1.ServicePort{
+				{
+					Name:       actions.DbPortName,
+					Protocol:   corev1.ProtocolTCP,
+					Port:       actions.DbPort,
+					TargetPort: intstr.FromInt32(actions.DbPort),
+				},
+			}
 
-type createServiceAction struct {
-	action.BaseAction
-}
-
-func (i createServiceAction) Name() string {
-	return "create service"
-}
-
-func (i createServiceAction) CanHandle(_ context.Context, instance *rhtasv1alpha1.Trillian) bool {
-	c := meta.FindStatusCondition(instance.Status.Conditions, constants.Ready)
-	return (c.Reason == constants.Creating || c.Reason == constants.Ready) && utils.OptionalBool(instance.Spec.Db.Create)
-}
-
-func (i createServiceAction) Handle(ctx context.Context, instance *rhtasv1alpha1.Trillian) *action.Result {
-
-	var (
-		err     error
-		updated bool
-	)
-
-	labels := constants.LabelsFor(actions.DbComponentName, actions.DbDeploymentName, instance.Name)
-	mysql := k8sutils.CreateService(instance.Namespace, host, host, port, port, labels)
-
-	//TLS: Annotate service
-	if k8sutils.IsOpenShift() && instance.Spec.Db.TLS.CertRef == nil {
-		if mysql.Annotations == nil {
-			mysql.Annotations = make(map[string]string)
-		}
-		mysql.Annotations[annotations.TLS] = instance.Name + "-trillian-db-tls"
-	}
-
-	if err = controllerutil.SetControllerReference(instance, mysql, i.Client.Scheme()); err != nil {
-		return i.Failed(fmt.Errorf("could not set controller reference for DB service: %w", err))
-	}
-
-	if updated, err = i.Ensure(ctx, mysql, action.EnsureSpec(), action.EnsureAnnotations(annotations.TLS)); err != nil {
-		meta.SetStatusCondition(&instance.Status.Conditions, metav1.Condition{
-			Type:    actions.DbCondition,
-			Status:  metav1.ConditionFalse,
-			Reason:  constants.Failure,
-			Message: err.Error(),
-		})
-		meta.SetStatusCondition(&instance.Status.Conditions, metav1.Condition{
-			Type:    constants.Ready,
-			Status:  metav1.ConditionFalse,
-			Reason:  constants.Failure,
-			Message: err.Error(),
-		})
-		return i.FailedWithStatusUpdate(ctx, fmt.Errorf("could not create Trillian DB service: %w", err), instance)
-	}
-
-	if updated {
-		meta.SetStatusCondition(&instance.Status.Conditions, metav1.Condition{
-			Type:    actions.DbCondition,
-			Status:  metav1.ConditionFalse,
-			Reason:  constants.Creating,
-			Message: "Service created",
-		})
-		return i.StatusUpdate(ctx, instance)
-	} else {
-		return i.Continue()
-	}
+			expected.Spec.Ports = ports
+			return nil
+		}),
+		actionK8s.MutateFn(func(expected *corev1.Service, instance *rhtasv1alpha1.Trillian) error {
+			//TLS: Annotate service
+			if k8sutils.IsOpenShift() && instance.Spec.Db.TLS.CertRef == nil {
+				if expected.Annotations == nil {
+					expected.Annotations = make(map[string]string)
+				}
+				expected.Annotations[annotations.TLS] = fmt.Sprintf(k8sutils.TlsSecretNameMask, instance.GetName())
+			}
+			return nil
+		}),
+		actionK8s.CanHandle(func(instance *rhtasv1alpha1.Trillian) bool {
+			c := meta.FindStatusCondition(instance.Status.Conditions, actions.DbCondition)
+			if c == nil {
+				return false
+			}
+			return (c.Reason == constants.Creating || c.Reason == constants.Ready) && utils.OptionalBool(instance.Spec.Db.Create)
+		}))
 }
